@@ -16,9 +16,11 @@ axiosRetry(axios, { retries: 3 })
 
 exports.draft = async (req, res, app) => {
     let active_draft;
+    let league;
+    let league_drafts;
     try {
-        const league = await axios.get(`https://api.sleeper.app/v1/league/${req.body.league_id}`)
-        const league_drafts = await axios.get(`https://api.sleeper.app/v1/league/${req.body.league_id}/drafts`)
+        league = await axios.get(`https://api.sleeper.app/v1/league/${req.body.league_id}`)
+        league_drafts = await axios.get(`https://api.sleeper.app/v1/league/${req.body.league_id}/drafts`)
         active_draft = league_drafts.data?.find(d => d.settings.slots_k > 0 && d.settings.rounds > league.data.settings.draft_rounds)
     } catch (error) {
         console.log(error.message)
