@@ -6,7 +6,8 @@ const TradeTipRosters = ({
     userRoster,
     lmRoster,
     stateAllPlayers,
-    league
+    roster_positions,
+    stateState
 }) => {
     const [filterUser, setFilterUser] = useState('All')
     const [filterLm, setFilterLm] = useState('All')
@@ -29,6 +30,7 @@ const TradeTipRosters = ({
                         <option>RB</option>
                         <option>WR</option>
                         <option>TE</option>
+                        <option>Picks</option>
                     </select>,
                     colSpan: 5
                 }
@@ -66,40 +68,57 @@ const TradeTipRosters = ({
     const body = (roster, filter) => {
         let players;
 
-        if (filter === 'All') {
-            players = [...roster.starters, ...roster.players.filter(p => !roster.starters.includes(p))]
-        } else {
-            players = roster.players.filter(player_id => stateAllPlayers[player_id]?.position === filter)
-        }
+        if (filter === 'Picks') {
+            return roster.draft_picks
+                .sort((a, b) => a.season - b.season || a.round - b.round || a.order - b.order)
+                .map(pick => {
+                    return {
+                        id: `${pick.season}_${pick.round}_${pick.original_user.user_id}`,
+                        list: [
+                            {
+                                text: <span>&nbsp;&nbsp;{`${pick.season} Round ${pick.round}${(pick.order && pick.season === parseInt(stateState.league_season)) ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : pick.original_user.user_id === roster?.user_id ? '' : `(${pick.original_user?.username || 'Orphan'})`}`.toString()}</span>,
+                                colSpan: 22,
+                                className: 'left'
+                            }
+                        ]
 
-
-        return players?.map((player_id, index) => {
-            return {
-                id: player_id,
-                list: [
-                    {
-                        text: filter === 'All' ? position_abbrev[league.roster_positions[index]] || league.roster_positions[index] : stateAllPlayers[player_id]?.position,
-                        colSpan: 5
-                    },
-
-                    {
-                        text: stateAllPlayers[player_id]?.full_name,
-                        colSpan: 12,
-                        className: 'left',
-                        image: {
-                            src: player_id,
-                            alt: 'player headshot',
-                            type: 'player'
-                        }
-                    },
-                    {
-                        text: stateAllPlayers[player_id]?.age,
-                        colSpan: 5
                     }
-                ]
+                })
+        } else {
+            if (filter === 'All') {
+                players = [...roster.starters, ...roster.players.filter(p => !roster.starters.includes(p))]
+            } else {
+                players = roster.players.filter(player_id => stateAllPlayers[player_id]?.position === filter)
             }
-        })
 
+
+            return players?.map((player_id, index) => {
+                return {
+                    id: player_id,
+                    list: [
+                        {
+                            text: filter === 'All' ? roster_positions && position_abbrev[roster_positions[index]] || roster_positions && roster_positions[index] || 'BN' : stateAllPlayers[player_id]?.position,
+                            colSpan: 5
+                        },
+
+                        {
+                            text: stateAllPlayers[player_id]?.full_name,
+                            colSpan: 12,
+                            className: 'left',
+                            image: {
+                                src: player_id,
+                                alt: 'player headshot',
+                                type: 'player'
+                            }
+                        },
+                        {
+                            text: stateAllPlayers[player_id]?.age,
+                            colSpan: 5
+                        }
+                    ]
+                }
+            })
+        }
 
     }
 

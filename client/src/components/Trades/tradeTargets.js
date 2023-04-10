@@ -81,7 +81,8 @@ const TradeTargets = ({
                     userRoster={add.userRoster}
                     lmRoster={add.lmRoster}
                     stateAllPlayers={stateAllPlayers}
-                    league={trade.league}
+                    stateState={stateState}
+                    roster_positions={add.league.roster_positions}
                 />
             )
         }
@@ -159,7 +160,8 @@ const TradeTargets = ({
                     userRoster={add.userRoster}
                     lmRoster={add.lmRoster}
                     stateAllPlayers={stateAllPlayers}
-                    league={trade.league}
+                    stateState={stateState}
+                    roster_positions={add.league.roster_positions}
                 />
             )
         }

@@ -25,7 +25,8 @@ export const getTradeTips = (trades, leagues, leaguemates, season) => {
                         league: {
                             league_id: league.league_id,
                             name: league.name,
-                            avatar: league.avatar
+                            avatar: league.avatar,
+                            roster_positions: league.roster_positions
                         },
                         userRoster: league.userRoster,
                         lmRoster: league.rosters.find(r => r.user_id === lm_user_id)
@@ -56,7 +57,8 @@ export const getTradeTips = (trades, leagues, leaguemates, season) => {
                         league: {
                             league_id: league.league_id,
                             name: league.name,
-                            avatar: league.avatar
+                            avatar: league.avatar,
+                            roster_positions: league.roster_positions
                         },
                         userRoster: league.userRoster,
                         lmRoster: league.rosters.find(r => r.user_id === lm_user_id)
@@ -91,7 +93,8 @@ export const getTradeTips = (trades, leagues, leaguemates, season) => {
                         league: {
                             league_id: league.league_id,
                             name: league.name,
-                            avatar: league.avatar
+                            avatar: league.avatar,
+                            roster_positions: league.roster_positions
                         },
                         userRoster: league.userRoster,
                         lmRoster: league.rosters.find(r => r.user_id === lm_user_id)
@@ -122,7 +125,8 @@ export const getTradeTips = (trades, leagues, leaguemates, season) => {
                         league: {
                             league_id: league.league_id,
                             name: league.name,
-                            avatar: league.avatar
+                            avatar: league.avatar,
+                            roster_positions: league.roster_positions
                         },
                         userRoster: league.userRoster,
                         lmRoster: league.rosters.find(r => r.user_id === lm_user_id)
