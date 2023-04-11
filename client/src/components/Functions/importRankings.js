@@ -18,7 +18,8 @@ export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
             if (!(headers[p] && headers[r] && headers[pos] && headers[team])) {
 
                 setUploadedRankings({
-                    error: `error - column${!headers[p] ? ' Player' : ''}${!headers[r] ? ' Rank' : ''}${!headers[pos] ? ' Position' : ''}${!headers[team] ? ' Team' : ''} not found`
+                    error: `error - column${!headers[p] ? ' Player' : ''}${!headers[r] ? ' Rank' : ''}${!headers[pos] ? ' Position' : ''}${!headers[team] ? ' Team' : ''} not found`,
+                    filename: filename
                 })
                 return
             }

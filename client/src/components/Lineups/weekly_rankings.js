@@ -166,11 +166,11 @@ const WeeklyRankings = ({
             }
         };
 
-        document.addEventListener('mouseleave', handleExitTooltip)
+        document.addEventListener('mousedown', handleExitTooltip)
         document.addEventListener('touchstart', handleExitTooltip)
 
         return () => {
-            document.removeEventListener('mouseleave', handleExitTooltip);
+            document.removeEventListener('mousedown', handleExitTooltip);
             document.removeEventListener('touchstart', handleExitTooltip);
         };
     }, [])
@@ -213,7 +213,9 @@ const WeeklyRankings = ({
                         <i
                             onClick={() => setErrorVisible(true)}
                             className={`fa-solid fa-circle-exclamation tooltip`} >
-                            <div ref={tooltipRef}>
+                            <div
+                                onMouseLeave={() => setErrorVisible(false)}
+                                ref={tooltipRef}>
                                 <div
                                     className={`${errorVisible ? 'tooltip_content' : 'hidden'}`}>
                                     {
