@@ -248,8 +248,9 @@ img.loading {
 
 label.upload {
   font-size: 2rem;
-  display: block;
-  margin: 5rem;
+  display: inline;
+  margin: 2rem;
+  width: fit-content;
 }
 
 input[type='file'] {

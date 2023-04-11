@@ -6,6 +6,7 @@ import Players from '../Players/players';
 import Leagues from '../Leagues/leagues';
 import Leaguemates from '../Leaguemates/leaguemates';
 import Trades from '../Trades/trades';
+import Lineups from "../Lineups/lineups";
 
 
 const View = ({
@@ -21,7 +22,8 @@ const View = ({
     stateLmLeaguesTrades,
     setStateLmLeaguesTrades,
     statePriceCheckTrades,
-    setStatePriceCheckTrades
+    setStatePriceCheckTrades,
+    stateNflSchedule
 }) => {
     const [tab, setTab] = useState('Players');
     const [type1, setType1] = useState('All');
@@ -29,6 +31,7 @@ const View = ({
     const [stateLeaguesFiltered, setStateLeaguesFiltered] = useState([]);
     const [statePlayerSharesFiltered, setStatePlayerSharesFiltered] = useState([]);
     const [stateLeaguematesFiltered, setStateLeaguematesFiltered] = useState([]);
+    const [uploadedRankings, setUploadedRankings] = useState({})
 
 
     useEffect(() => {
@@ -81,6 +84,17 @@ const View = ({
                 setStatePriceCheckTrades={setStatePriceCheckTrades}
                 stateLeaguematesDict={stateLeaguematesDict}
                 stateLeagues={stateLeagues}
+            />
+            break;
+        case 'Lineups':
+            display = <Lineups
+                stateLeagues={stateLeaguesFiltered}
+                stateAllPlayers={stateAllPlayers}
+                uploadedRankings={uploadedRankings}
+                setUploadedRankings={setUploadedRankings}
+                stateState={stateState}
+                state_user={state_user}
+                stateNflSchedule={stateNflSchedule}
             />
             break;
         default:

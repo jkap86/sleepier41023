@@ -49,6 +49,7 @@ const Heading = ({
                     <option>Trades</option>
                     <option>Leagues</option>
                     <option>Leaguemates</option>
+                    <option>Lineups</option>
                 </select>
 
             </div>

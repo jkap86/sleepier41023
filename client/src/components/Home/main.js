@@ -10,6 +10,7 @@ const Main = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [stateState, setStateState] = useState({})
     const [stateAllPlayers, setStateAllPlayers] = useState({});
+    const [stateNflSchedule, setStateNflSchedule] = useState({});
     const [state_user, setState_User] = useState({});
     const [stateLeagues, setStateLeagues] = useState([]);
     const [stateLeaguemates, setStateLeaguemates] = useState([]);
@@ -18,6 +19,7 @@ const Main = () => {
     const [stateLmTrades, setStateLmTrades] = useState({});
     const [stateLmLeaguesTrades, setStateLmLeaguesTrades] = useState({});
     const [statePriceCheckTrades, setStatePriceCheckTrades] = useState({})
+
 
     useEffect(() => {
         const fetchLeagues = async () => {
@@ -39,6 +41,7 @@ const Main = () => {
 
                 setStateState(home.data.state)
                 setStateAllPlayers(home.data.allplayers)
+                setStateNflSchedule(home.data.schedule)
                 setState_User(user.data[0])
                 setStateLeagues(data.leagues)
                 setStatePlayerShares(data.players)
@@ -76,6 +79,7 @@ const Main = () => {
                             setStateLmLeaguesTrades={setStateLmLeaguesTrades}
                             statePriceCheckTrades={statePriceCheckTrades}
                             setStatePriceCheckTrades={setStatePriceCheckTrades}
+                            stateNflSchedule={stateNflSchedule}
                         />
                     </React.Suspense>
 

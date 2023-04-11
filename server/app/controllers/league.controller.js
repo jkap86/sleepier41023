@@ -43,11 +43,6 @@ exports.draft = async (req, res, app) => {
             }
         })
 
-        console.log({
-            league: league.data,
-            picks: picktracker
-        })
-
         res.send({
             league: league.data,
             picks: picktracker
@@ -161,10 +156,10 @@ const getLeaguesToAdd = async (leagues_to_add, season, state, type) => {
 
                     try {
                         if (type === 'add') {
-                            Array.from(Array(week).keys()).map(async key => {
+                            await Promise.all(Array.from(Array(week).keys()).map(async key => {
                                 let matchups_week = await axios.get(`https://api.sleeper.app/v1/league/${league_id}/matchups/${key + 1}`)
                                 matchups[`matchups_${key + 1}`] = matchups_week.data
-                            })
+                            }))
                         } else {
                             let matchups_week = await axios.get(`https://api.sleeper.app/v1/league/${league_id}/matchups/${week}`)
                             matchups[`matchups_${week}`] = matchups_week.data
@@ -173,7 +168,7 @@ const getLeaguesToAdd = async (leagues_to_add, season, state, type) => {
                         console.log(error)
                     }
 
-
+                    console.log(matchups)
                     if (league?.data) {
                         const new_league = {
                             league_id: league_id,

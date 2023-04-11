@@ -603,7 +603,7 @@ const Trades = ({
             user_id: state_user.user_id,
             leaguemates: Object.keys(stateLeaguematesDict),
             offset: trades.length,
-            limit: 250
+            limit: 125
         })
 
         setPage(Math.ceil(stateLmTrades.trades.length / 25) + 1)

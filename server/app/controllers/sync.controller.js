@@ -31,8 +31,17 @@ exports.boot = async (app) => {
     const state = await axios.get('https://api.sleeper.app/v1/state/nfl')
     app.set('state', state.data)
 
-    const allplayers = await getAllPlayers(axios, state.data)
+    const allplayers = await getAllPlayers()
     app.set('allplayers', allplayers)
+
+    const nflschedule = await axios.get(`https://api.myfantasyleague.com/2022/export?TYPE=nflSchedule&W=ALL&JSON=1`)
+
+    const schedule = {}
+
+    nflschedule.data.fullNflSchedule.nflSchedule.map(matchups_week => {
+        return schedule[matchups_week.week] = matchups_week.matchup
+    })
+    app.set('schedule', schedule)
 
     app.set('leaguemate_leagues', [])
     app.set('leaguemates', [])

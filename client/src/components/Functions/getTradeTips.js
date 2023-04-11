@@ -77,7 +77,7 @@ export const getTradeTips = (trades, leagues, leaguemates, season) => {
                     &&
                     (
                         league.rosters?.find(r => r.roster_id !== league.userRoster.roster_id && (r.user_id === lm_user_id || r.co_owners?.find(co => co.user_id === lm_user_id)))?.players?.includes(drop)
-                        && league.league_id !== trade.league.league_id
+                        && league.league_id !== trade.leagueLeagueId
 
                     )
                 )
@@ -111,7 +111,7 @@ export const getTradeTips = (trades, leagues, leaguemates, season) => {
                     league.rosters?.find(r => r.roster_id !== league.userRoster.roster_id && (r.user_id === lm_user_id || r.co_owners?.find(co => co.user_id === lm_user_id)))?.draft_picks?.find(pickLM => {
                         return parseInt(pick.season) === pickLM.season && pick.round === pickLM.round && (pick.order === pickLM.order)
                     })
-                    && league.league_id !== trade.league.league_id
+                    && league.league_id !== trade.leagueLeagueId
                 )
                 .map(league => {
                     return acquire.push({

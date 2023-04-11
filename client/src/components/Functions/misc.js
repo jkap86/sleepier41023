@@ -121,15 +121,18 @@ export const scoring_settings_display = [
 export const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat']
 
 
-export const team_abbrev = {
-    SFO: 'SF',
-    JAC: 'JAX',
-    KCC: 'KC',
-    TBB: 'TB',
-    GBP: 'GB',
-    NEP: 'NE',
-    LVR: 'LV',
-    NOS: 'NO'
+export const matchTeam = (team) => {
+    const team_abbrev = {
+        SFO: 'SF',
+        JAC: 'JAX',
+        KCC: 'KC',
+        TBB: 'TB',
+        GBP: 'GB',
+        NEP: 'NE',
+        LVR: 'LV',
+        NOS: 'NO'
+    }
+    return team_abbrev[team] || team
 }
 
 export const getMonthName = (monthIndex) => {
