@@ -7,6 +7,7 @@ export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
         const filename = e.target.files[0].name
         const reader = new FileReader()
         reader.onload = (e) => {
+            /*
             const results = []
             const lines = reader.result.split('\n');
             const headers = lines[0].split(',').map(h => h.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, ''))
@@ -16,7 +17,7 @@ export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
             const team = headers.findIndex(h => ['team', 'tm'].includes(h.toLowerCase()))
 
             if (!(headers[p] && headers[r] && headers[pos] && headers[team])) {
-
+                console.log(lines)
                 setUploadedRankings({
                     error: `error - column${!headers[p] ? ' Player' : ''}${!headers[r] ? ' Rank' : ''}${!headers[pos] ? ' Position' : ''}${!headers[team] ? ' Team' : ''} not found`,
                     filename: filename
@@ -50,47 +51,47 @@ export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
                 }
             })
 
-            /*
-                        const data = e.target.result
-                        const workbook = read(data, { type: 'array' })
-                        const sheetName = workbook.SheetNames[0]
-                        const worksheet = workbook.Sheets[sheetName]
-                        let json = utils.sheet_to_json(worksheet)
-            
-                        const cols = Object.keys(json[0])
-                        const p = cols.find(x => ['player', 'name', 'player name'].includes(x.trim().toLowerCase()))
-                        const r = cols.find(x => ['rank', 'rk'].includes(x.trim().toLowerCase()))
-                        const pos = cols.find(x => ['pos', 'position'].includes(x.trim().toLowerCase()))
-                        const team = cols.find(x => ['team', 'tm'].includes(x.trim().toLowerCase()))
-            
-                        if (!(p && r && pos && team)) {
-                            setUploadedRankings({ error: 'error - column not found' })
-                            return
-                        }
-            
-                        let uploadedRankings = {}
-                        let notMatched = []
-            
-                        json.map(player => {
-                            const player_to_update = matchRankings(player[p].trim().toLowerCase().replace(/[^a-z]/g, ""), player[pos].slice(0, 2), player[team], stateAllPlayers)
-                            const rank = player[r]
-                            if (player_to_update.error) {
-                                notMatched.push({
-                                    name: player[p],
-                                    rank: rank,
-                                    position: player[pos],
-                                    team: player[team],
-                                    error: player_to_update.error
-                                })
-                            } else {
-                                return uploadedRankings[player_to_update.id] = {
-                                    prevRank: rank,
-                                    newRank: rank
-                                }
-            
-                            }
-                        })
             */
+            const data = e.target.result
+            const workbook = read(data, { type: 'array' })
+            const sheetName = workbook.SheetNames[0]
+            const worksheet = workbook.Sheets[sheetName]
+            let json = utils.sheet_to_json(worksheet)
+
+            const cols = Object.keys(json[0])
+            const p = cols.find(x => ['player', 'name', 'player name'].includes(x.trim().toLowerCase()))
+            const r = cols.find(x => ['rank', 'rk', 'overall'].includes(x.trim().toLowerCase()))
+            const pos = cols.find(x => ['pos', 'position'].includes(x.trim().toLowerCase()))
+            const team = cols.find(x => ['team', 'tm'].includes(x.trim().toLowerCase()))
+
+            if (!(p && r && pos)) {
+                setUploadedRankings({ error: `error - column ${!p ? ' Player' : ''} ${!r ? ' Rank' : ''} ${!pos ? ' Position' : ''} ${!team ? ' Team' : ''} not found` })
+                return
+            }
+
+            let uploadedRankings = {}
+            let notMatched = []
+
+            json.map(player => {
+                const player_to_update = matchRankings(player[p].trim().toLowerCase().replace(/[^a-z]/g, ""), player[pos].slice(0, 2), matchTeam(player[team]), stateAllPlayers)
+                const rank = player[r]
+                if (player_to_update.error) {
+                    notMatched.push({
+                        name: player[p],
+                        rank: rank,
+                        position: player[pos],
+                        team: player[team],
+                        error: player_to_update.error
+                    })
+                } else {
+                    return uploadedRankings[player_to_update.id] = {
+                        prevRank: rank,
+                        newRank: rank
+                    }
+
+                }
+            })
+
             if (uploadedRankings.error) {
                 console.log(uploadedRankings.error)
             }
@@ -104,7 +105,7 @@ export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
             })
 
         }
-        reader.readAsText(e.target.files[0])
+        reader.readAsArrayBuffer(e.target.files[0])
     } else {
         console.log('no file')
     }
@@ -117,7 +118,7 @@ const matchRankings = (player_name, position, team, stateAllPlayers) => {
     }
     let start = 1
     let end = 4
-    const players_to_search = Object.keys(stateAllPlayers).filter(p => stateAllPlayers[p]?.position === position)
+    const players_to_search = Object.keys(stateAllPlayers).filter(p => stateAllPlayers[p]?.position === position && stateAllPlayers[p]?.active === true)
     let matches = players_to_search
         .filter(player_id =>
             player.includes(stateAllPlayers[player_id]?.search_full_name.slice(start, end))
