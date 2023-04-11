@@ -3,6 +3,7 @@ import TableMain from "../Home/tableMain";
 import { importRankings } from '../Functions/importRankings';
 import { matchTeam } from "../Functions/misc";
 import { getNewRank } from "../Functions/getNewRank";
+import { utils, writeFile } from 'xlsx';
 
 const WeeklyRankings = ({
     stateAllPlayers,
@@ -26,6 +27,14 @@ const WeeklyRankings = ({
             {
                 text: 'Player',
                 colSpan: 3
+            },
+            {
+                text: 'Pos',
+                colSpan: 1
+            },
+            {
+                text: 'Team',
+                colSpan: 1
             },
             {
                 text: 'Opp',
@@ -83,6 +92,14 @@ const WeeklyRankings = ({
                             alt: 'player headshot',
                             type: 'player'
                         }
+                    },
+                    {
+                        text: stateAllPlayers[player_id]?.position,
+                        colSpan: 1
+                    },
+                    {
+                        text: stateAllPlayers[player_id]?.team || 'FA',
+                        colSpan: 1
                     },
                     {
                         text: matchTeam(stateNflSchedule[stateState.display_week]
@@ -157,6 +174,21 @@ const WeeklyRankings = ({
         setEdit(false)
     }
 
+    const downloadFile = () => {
+        const workbook = utils.book_new()
+        const data = Object.keys(uploadedRankings.rankings || {}).map(player_id => {
+            return {
+                name: stateAllPlayers[player_id]?.full_name,
+                position: stateAllPlayers[player_id]?.position,
+                team: stateAllPlayers[player_id]?.team || 'FA',
+                rank: uploadedRankings.rankings[player_id].prevRank
+            }
+        }).sort((a, b) => a.rank - b.rank)
+        const worksheet = utils.json_to_sheet(data)
+        utils.book_append_sheet(workbook, worksheet, `Week ${stateState.display_week} Rankings`)
+        writeFile(workbook, `SleepierWeek${stateState.display_week}Rankings.xlsx`)
+    }
+
     useEffect(() => {
         const handleExitTooltip = (event) => {
 
@@ -205,6 +237,13 @@ const WeeklyRankings = ({
             </label>
         </h1>
         <h1>
+            {
+                uploadedRankings.filename ?
+                    <i
+                        onClick={() => downloadFile()}
+                        className="fa-solid fa-download"></i>
+                    : null
+            }
             {uploadedRankings.filename}
             {
                 uploadedRankings.error || uploadedRankings.notMatched?.length > 0 ?
