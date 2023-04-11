@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import TableMain from "../Home/tableMain";
 import { importRankings } from '../Functions/importRankings';
 import { matchTeam } from "../Functions/misc";
@@ -13,10 +13,11 @@ const WeeklyRankings = ({
     stateState,
     stateNflSchedule
 }) => {
-    const [itemActive, setItemActive] = useState('');
+    const [errorVisible, setErrorVisible] = useState(false);
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [edit, setEdit] = useState(false)
+    const tooltipRef = useRef(null)
 
     console.log(uploadedRankings)
 
@@ -32,7 +33,7 @@ const WeeklyRankings = ({
             },
             {
                 text: 'Kickoff',
-                colSpan: 1
+                colSpan: 2
             },
             {
                 text: edit ? <span><i
@@ -49,7 +50,7 @@ const WeeklyRankings = ({
                     onClick={() => handleRankSave(false)}
                     className={'fa fa-save clickable'}
                 ></i></span>,
-                colSpan: 1
+                colSpan: 2
             }
         ]
     ]
@@ -57,6 +58,11 @@ const WeeklyRankings = ({
     const weekly_rankings_body = Object.keys(uploadedRankings.rankings || {})
         ?.sort((a, b) => uploadedRankings.rankings[a].prevRank - uploadedRankings.rankings[b].prevRank)
         ?.map(player_id => {
+            const offset = new Date().getTimezoneOffset()
+            const kickoff = new Date(parseInt(stateNflSchedule[stateState.display_week]
+                ?.find(matchup => matchup.team.find(t => matchTeam(t.id) === stateAllPlayers[player_id]?.team))
+                ?.kickoff * 1000))
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
             return {
                 id: player_id,
                 search: {
@@ -88,8 +94,8 @@ const WeeklyRankings = ({
                         colSpan: 1
                     },
                     {
-                        text: 'Kickoff',
-                        colSpan: 1
+                        text: kickoff.toLocaleString("en-US", { weekday: 'short', hour: 'numeric', minute: 'numeric', timeZone: timezone }),
+                        colSpan: 2
                     },
                     {
                         text: uploadedRankings.rankings[player_id].prevRank,
@@ -101,7 +107,7 @@ const WeeklyRankings = ({
                             className={'editRank'}
                             onChange={(e) => handleRankChange([{ rank: e.target.value, player_id: player_id }])}
                         />,
-                        colSpan: 1
+                        colSpan: 2
                     }
                 ]
             }
@@ -141,7 +147,7 @@ const WeeklyRankings = ({
 
         let r = uploadedRankings.rankings
 
-        Object.keys(r).map(player_id => {
+        Object.keys(r || {}).map(player_id => {
             return r[player_id].prevRank = r[player_id].newRank
         })
         setUploadedRankings({
@@ -151,7 +157,23 @@ const WeeklyRankings = ({
         setEdit(false)
     }
 
-    const unmatched = uploadedRankings.notMatched?.map(p => `${p.position} ${p.name} Rank: ${p.rank}`)
+    useEffect(() => {
+        const handleExitTooltip = (event) => {
+
+            if (!tooltipRef.current || !tooltipRef.current.contains(event.target)) {
+
+                setErrorVisible(false)
+            }
+        };
+
+        document.addEventListener('mouseleave', handleExitTooltip)
+        document.addEventListener('touchstart', handleExitTooltip)
+
+        return () => {
+            document.removeEventListener('mouseleave', handleExitTooltip);
+            document.removeEventListener('touchstart', handleExitTooltip);
+        };
+    }, [])
 
     return <>
         <div className='navbar'>
@@ -182,7 +204,57 @@ const WeeklyRankings = ({
                 />
             </label>
         </h1>
-        <h1 >{uploadedRankings.notMatched?.length && uploadedRankings.notMatched?.length + ' Not Matched'} </h1>
+        <h1>
+            {uploadedRankings.filename}
+            {
+                uploadedRankings.error || uploadedRankings.notMatched?.length > 0 ?
+                    <>
+
+                        <i
+                            onClick={() => setErrorVisible(true)}
+                            className={`fa-solid fa-circle-exclamation tooltip`} >
+                            <div ref={tooltipRef}>
+                                <div
+                                    className={`${errorVisible ? 'tooltip_content' : 'hidden'}`}>
+                                    {
+                                        uploadedRankings.error ||
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th colSpan={6}>NOT MATCHED</th>
+                                                </tr>
+                                                <tr>
+                                                    <th colSpan={3}>Player Name</th>
+                                                    <th >Rank</th>
+                                                    <th>Pos</th>
+                                                    <th>Team</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    uploadedRankings.notMatched.map((nm, index) =>
+                                                        <tr key={`${nm.name}_${index}`}>
+                                                            <td colSpan={3} className='left'><p><span>{nm.name}</span></p></td>
+                                                            <td>{nm.rank}</td>
+                                                            <td>{nm.position}</td>
+                                                            <td>{nm.team}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                </div>
+                            </div>
+                        </i>
+
+
+
+                    </>
+                    : null
+            }
+        </h1>
+
 
         <TableMain
             id={'Rankings'}

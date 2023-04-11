@@ -14,6 +14,17 @@ const axiosRetry = require('axios-retry');
 
 axiosRetry(axios, { retries: 3 })
 
+exports.sync = async (req, res, app) => {
+    const state = app.get('state')
+    const matchups = await axios.get(`https://api.sleeper.app/v1/league/${req.body.league_id}/matchups/${state.display_week}`)
+    await League.update({ [`matchups_${state.display_week}`]: matchups.data }, {
+        where: {
+            league_id: req.body.league_id
+        }
+    })
+    res.send(matchups.data)
+}
+
 exports.draft = async (req, res, app) => {
     let active_draft;
     let league;

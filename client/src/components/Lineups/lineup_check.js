@@ -10,7 +10,9 @@ const LineupCheck = ({
     stateLeagues,
     stateState,
     stateAllPlayers,
-    state_user
+    state_user,
+    syncLeague,
+    stateNflSchedule
 }) => {
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
@@ -55,9 +57,7 @@ const LineupCheck = ({
         ]
     ]
 
-    const syncLeague = () => {
 
-    }
 
     const lineups_body = stateLeagues.map(league => {
         const matchups = league[`matchups_${stateState.display_week}`]
@@ -75,7 +75,7 @@ const LineupCheck = ({
 
 
         }
-        let lineups = matchup && uploadedRankings.rankings && getLineupCheck(matchup, league, stateAllPlayers, uploadedRankings.rankings)
+        let lineups = matchup && uploadedRankings.rankings && getLineupCheck(matchup, league, stateAllPlayers, uploadedRankings.rankings, stateNflSchedule[stateState.display_week])
         const optimal_lineup = lineups?.optimal_lineup
         const lineup_check = lineups?.lineup_check
         const starting_slots = lineups?.starting_slots
@@ -102,35 +102,35 @@ const LineupCheck = ({
                     }
                 },
                 {
-                    text: !matchup?.matchup_id ? '-' : lineup_check.filter(x => x.notInOptimal).length > 0 ?
+                    text: !matchup?.matchup_id || !lineup_check ? '-' : lineup_check.filter(x => x.notInOptimal).length > 0 ?
                         lineup_check.filter(x => x.notInOptimal).length :
                         '√',
                     colSpan: 2,
-                    className: !matchup?.matchup_id ? '' : lineup_check.filter(x => x.notInOptimal).length > 0 ?
+                    className: !matchup?.matchup_id || !lineup_check ? '' : lineup_check.filter(x => x.notInOptimal).length > 0 ?
                         'red' : 'green'
                 },
                 {
-                    text: !matchup?.matchup_id ? '-' : lineup_check.filter(x => x.earlyInFlex).length > 0 ?
+                    text: !matchup?.matchup_id || !lineup_check ? '-' : lineup_check.filter(x => x.earlyInFlex).length > 0 ?
                         lineup_check.filter(x => x.earlyInFlex).length :
                         '√',
                     colSpan: 2,
-                    className: !matchup?.matchup_id ? '' : lineup_check.filter(x => x.earlyInFlex).length > 0 ?
+                    className: !matchup?.matchup_id || !lineup_check ? '' : lineup_check.filter(x => x.earlyInFlex).length > 0 ?
                         'red' : 'green'
                 },
                 {
-                    text: !matchup?.matchup_id ? '-' : lineup_check.filter(x => x.lateNotInFlex).length > 0 ?
+                    text: !matchup?.matchup_id || !lineup_check ? '-' : lineup_check.filter(x => x.lateNotInFlex).length > 0 ?
                         lineup_check.filter(x => x.lateNotInFlex).length :
                         '√',
                     colSpan: 2,
-                    className: !matchup?.matchup_id ? '' : lineup_check.filter(x => x.lateNotInFlex).length > 0 ?
+                    className: !matchup?.matchup_id || !lineup_check ? '' : lineup_check.filter(x => x.lateNotInFlex).length > 0 ?
                         'red' : 'green'
                 },
                 {
-                    text: !matchup?.matchup_id ? '-' : lineup_check.filter(x => x.nonQBinSF).length > 0 ?
+                    text: !matchup?.matchup_id || !lineup_check ? '-' : lineup_check.filter(x => x.nonQBinSF).length > 0 ?
                         lineup_check.filter(x => x.nonQBinSF).length :
                         '√',
                     colSpan: 2,
-                    className: !matchup?.matchup_id ? '' : lineup_check.filter(x => x.nonQBinSF).length > 0 ?
+                    className: !matchup?.matchup_id || !lineup_check ? '' : lineup_check.filter(x => x.nonQBinSF).length > 0 ?
                         'red' : 'green'
                 }
             ],
@@ -150,6 +150,7 @@ const LineupCheck = ({
                     setSearched={setSearched}
                     uploadedRankings={uploadedRankings}
                     stateState={stateState}
+                    stateNflSchedule={stateNflSchedule}
                 />
             )
         }

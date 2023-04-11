@@ -23,7 +23,8 @@ const View = ({
     setStateLmLeaguesTrades,
     statePriceCheckTrades,
     setStatePriceCheckTrades,
-    stateNflSchedule
+    stateNflSchedule,
+    syncLeague
 }) => {
     const [tab, setTab] = useState('Players');
     const [type1, setType1] = useState('All');
@@ -95,6 +96,7 @@ const View = ({
                 stateState={stateState}
                 state_user={state_user}
                 stateNflSchedule={stateNflSchedule}
+                syncLeague={syncLeague}
             />
             break;
         default:

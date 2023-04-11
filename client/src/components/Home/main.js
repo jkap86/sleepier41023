@@ -57,7 +57,22 @@ const Main = () => {
     }, [params.username, params.season])
 
 
-
+    const syncLeague = async (league_id) => {
+        const leagues = stateLeagues
+        const syncdMatchup = await axios.post('/league/sync', {
+            league_id: league_id
+        })
+        const leaguesSynced = leagues.map(league => {
+            if (league.league_id === league_id) {
+                league = {
+                    ...league,
+                    [`matchups_${stateState.display_week}`]: syncdMatchup.data
+                }
+            }
+            return league
+        })
+        setStateLeagues([...leaguesSynced])
+    }
     return <>
         {
             isLoading || !state_user ?
@@ -80,6 +95,7 @@ const Main = () => {
                             statePriceCheckTrades={statePriceCheckTrades}
                             setStatePriceCheckTrades={setStatePriceCheckTrades}
                             stateNflSchedule={stateNflSchedule}
+                            syncLeague={syncLeague}
                         />
                     </React.Suspense>
 

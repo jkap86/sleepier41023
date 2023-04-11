@@ -33,6 +33,12 @@ table.secondary.subs {
     font-size: 75%;
 }
 
+table.secondary.lineup img.thumbnail,
+table.secondary.subs img.thumbnail {
+    height: 5rem;
+    width: 5rem;
+}
+
 table.secondary>tbody>tr {
     position: sticky;
     top: var(--sticky3);
@@ -140,7 +146,7 @@ td.small {
 }
 
 
-td {
+table.main td {
     background-color: var(--color4);
     height: 7rem;
 }

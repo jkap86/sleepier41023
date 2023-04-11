@@ -1,4 +1,6 @@
-export const getLineupCheck = (matchup, league, stateAllPlayers, weeklyRankings) => {
+import { matchTeam } from "./misc"
+
+export const getLineupCheck = (matchup, league, stateAllPlayers, weeklyRankings, schedule) => {
 
     const position_map = {
         'QB': ['QB'],
@@ -57,7 +59,10 @@ export const getLineupCheck = (matchup, league, stateAllPlayers, weeklyRankings)
         starting_slots.map((slot, index) => {
             const cur_id = (matchup?.starters || [])[index]
             const isInOptimal = optimal_lineup.find(x => x.player === cur_id)
-            const gametime = new Date((stateAllPlayers[cur_id]?.gametime) * 1000)
+            const kickoff = new Date(parseInt(schedule
+                ?.find(matchup => matchup.team.find(t => matchTeam(t.id) === stateAllPlayers[cur_id]?.team))
+                ?.kickoff * 1000))
+            const gametime = new Date(kickoff)
             const day = gametime.getDay() <= 2 ? gametime.getDay() + 7 : gametime.getDay()
             const hour = gametime.getHours()
             const timeslot = parseFloat(day + '.' + hour)
@@ -68,7 +73,10 @@ export const getLineupCheck = (matchup, league, stateAllPlayers, weeklyRankings)
                 )
                 || []
             const earlyInFlex = timeslot < 7 && matchup.starters?.find((x, starter_index) => {
-                const alt_gametime = new Date(stateAllPlayers[x]?.gametime * 1000)
+                const alt_kickoff = new Date(parseInt(schedule
+                    ?.find(matchup => matchup.team.find(t => matchTeam(t.id) === stateAllPlayers[x]?.team))
+                    ?.kickoff * 1000))
+                const alt_gametime = new Date(alt_kickoff)
                 const alt_day = alt_gametime.getDay() <= 2 ? alt_gametime.getDay() + 7 : alt_gametime.getDay()
                 const alt_hour = alt_gametime.getHours()
                 const alt_timeslot = parseFloat(alt_day + '.' + alt_hour)

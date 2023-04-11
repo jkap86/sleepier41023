@@ -7,6 +7,10 @@ module.exports = app => {
 
     router.post('/find', leagues.find);
 
+    router.post('/sync', async (req, res) => {
+        leagues.sync(req, res, app)
+    })
+
     router.post("/draft", async (req, res) => {
         leagues.draft(req, res, app)
     })

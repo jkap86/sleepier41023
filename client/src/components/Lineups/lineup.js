@@ -1,9 +1,23 @@
 import TableMain from "../Home/tableMain";
 import { useState, useEffect } from "react";
 import tumbleweedgif from '../../images/tumbleweed.gif';
+import { matchTeam } from "../Functions/misc";
 
-
-const Lineup = ({ matchup, opponent, starting_slots, league, optimal_lineup, stateAllPlayers, state_user, lineup_check, syncLeague, players_points, uploadedRankings, stateState }) => {
+const Lineup = ({
+    matchup,
+    opponent,
+    starting_slots,
+    league,
+    optimal_lineup,
+    stateAllPlayers,
+    state_user,
+    lineup_check,
+    syncLeague,
+    players_points,
+    uploadedRankings,
+    stateState,
+    stateNflSchedule
+}) => {
     const [itemActive, setItemActive] = useState(null);
     const [syncing, setSyncing] = useState(false)
     const [secondaryContent, setSecondaryContent] = useState('Optimal')
@@ -97,7 +111,11 @@ const Lineup = ({ matchup, opponent, starting_slots, league, optimal_lineup, sta
                     }
                 },
                 {
-                    text: '-',
+                    text: matchTeam(stateNflSchedule[stateState.display_week]
+                        ?.find(matchup => matchup.team.find(t => matchTeam(t.id) === stateAllPlayers[slot.current_player]?.team))
+                        ?.team
+                        ?.find(team => matchTeam(team.id) !== stateAllPlayers[slot.current_player]?.team)
+                        ?.id) || 'FA',
                     colSpan: 3,
                     className: color
                 },
@@ -185,7 +203,7 @@ const Lineup = ({ matchup, opponent, starting_slots, league, optimal_lineup, sta
             },
 
             ...lineup_check.find(x => x.slot_index === itemActive)?.slot_options
-                ?.sort((a, b) => (uploadedRankings.uploadedRankings?.find(r => r.player.id === a)?.rank || 999) - (uploadedRankings.uploadedRankings?.find(r => r.player.id === b)?.rank || 999))
+                ?.sort((a, b) => (uploadedRankings.rankings[a]?.prevRank || 999) - (uploadedRankings.rankings[b]?.prevRank || 999))
                 ?.map((so, index) => {
                     const color = optimal_lineup.find(x => x.player === so) ? 'green' :
                         stateAllPlayers[so]?.rank_ecr < stateAllPlayers[active_player]?.rank_ecr ? 'yellow' : ''

@@ -9,7 +9,8 @@ const Lineups = ({
     stateAllPlayers,
     stateState,
     state_user,
-    stateNflSchedule
+    stateNflSchedule,
+    syncLeague
 }) => {
     const [tab, setTab] = useState('Weekly Rankings')
 
@@ -32,6 +33,8 @@ const Lineups = ({
             stateState={stateState}
             stateAllPlayers={stateAllPlayers}
             state_user={state_user}
+            syncLeague={syncLeague}
+            stateNflSchedule={stateNflSchedule}
         />
 
     return <>
