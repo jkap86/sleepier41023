@@ -30,8 +30,8 @@ div.position_square3,
 div.position_square4 {
     font-size: 2.5rem;
     display: flex;
-    height: 6rem;
-    width: 6rem;
+    height: 7rem;
+    width: 7rem;
     flex-wrap: wrap;
     border-radius: 1rem;
     overflow: hidden;
@@ -86,4 +86,5 @@ div.rb {
 div.position_square1>div.picks {
     background-color: midnightblue;
     color: white;
+    text-shadow: none;
 }
