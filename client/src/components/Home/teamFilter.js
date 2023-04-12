@@ -1,35 +1,33 @@
 import '../Home/css/teamFilter.css';
 
 const TeamFilter = ({
-    filterPosition,
-    setFilterPosition,
-    picks
+    filterTeam,
+    setFilterTeam
 }) => {
+
+    const nfl_teams = [
+        'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE', 'DAL', 'DEN',
+        'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC', 'LV', 'LAC', 'LAR', 'MIA', 'MIN',
+        'NE', 'NO', 'NYG', 'NYJ', 'PHI', 'PIT', 'SF', 'SEA', 'TB', 'TEN', 'WAS'
+    ]
 
     return <>
         <span className="team">
             <label>
-                <div className={filterPosition === 'Picks' ? 'position_square1' : `position_square${filterPosition.split('/').length}`}>
-                    {filterPosition.split('/').includes('W') || filterPosition === 'WR' ? <div className="wr">{filterPosition === 'WR' ? 'WR' : 'W'}</div> : null}
-                    {filterPosition.split('/').includes('R') || filterPosition === 'RB' ? <div className="rb">{filterPosition === 'RB' ? 'RB' : 'R'}</div> : null}
-                    {filterPosition.split('/').includes('T') || filterPosition === 'TE' ? <div className="te">{filterPosition === 'TE' ? 'TE' : 'T'}</div> : null}
-                    {filterPosition.split('/').includes('Q') || filterPosition === 'QB' ? <div className="qb">{filterPosition === 'QB' ? 'QB' : 'Q'}</div> : null}
-                    {filterPosition === 'Picks' ? <div className="picks">Picks</div> : null}
-                </div>
+                <img
+                    className={'icon'}
+                    src={`https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/${filterTeam}.png`}
+                    onError={(e) => { return e.target.src = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/nfl.png` }}
+                />
                 <select
                     className="hidden_behind click"
-                    onChange={(e) => setFilterPosition(e.target.value)}
-                    value={filterPosition}
+                    onChange={(e) => setFilterTeam(e.target.value)}
+                    value={filterTeam}
                 >
-                    <option>QB</option>
-                    <option>RB</option>
-                    <option>WR</option>
-                    <option>TE</option>
-                    <option>W/R/T/Q</option>
-                    <option>W/R/T</option>
-                    <option>W/R</option>
-                    <option>W/T</option>
-                    {picks ? <option>Picks</option> : null}
+                    <option>All</option>
+                    {nfl_teams.map(team =>
+                        <option key={team}>{team}</option>
+                    )}
                 </select>
             </label>
 

@@ -3,7 +3,7 @@ import { avatar } from '../Functions/misc';
 import { useEffect, useRef } from 'react';
 import Search from './search';
 
-const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItemActive, caption, search, searched, setSearched, options, partial, loadMore }) => {
+const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItemActive, caption, search, searched, setSearched, options1, options2, partial, loadMore }) => {
     const pageRef = useRef(null)
     const searchRef = useRef(null)
 
@@ -40,7 +40,11 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
     return <>
         {
             search ?
+
                 <div className='search_filter_wrapper' ref={searchRef}>
+                    {
+                        options1?.map(option => option)
+                    }
                     <Search
                         id={id}
                         sendSearched={(data) => setSearched(data)}
@@ -50,7 +54,7 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
                         })}
                     />
                     {
-                        options?.map(option => option)
+                        options2?.map(option => option)
                     }
                 </div>
                 :

@@ -5,6 +5,7 @@ import { matchTeam } from "../Functions/misc";
 import { getNewRank } from "../Functions/getNewRank";
 import { utils, writeFile } from 'xlsx';
 import TeamFilter from "../Home/teamFilter";
+import PositionFilter from "../Home/positionFilter";
 
 const WeeklyRankings = ({
     stateAllPlayers,
@@ -20,6 +21,7 @@ const WeeklyRankings = ({
     const [searched, setSearched] = useState('')
     const [edit, setEdit] = useState(false)
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
+    const [filterTeam, setFilterTeam] = useState('All')
     const tooltipRef = useRef(null)
 
     console.log(uploadedRankings)
@@ -67,19 +69,25 @@ const WeeklyRankings = ({
     ]
 
     const weekly_rankings_body = Object.keys(uploadedRankings.rankings || {})
-        ?.filter(x => filterPosition === stateAllPlayers[x]?.position
-            || filterPosition.split('/').includes(stateAllPlayers[x]?.position?.slice(0, 1)))
+        ?.filter(x => (
+            filterPosition === stateAllPlayers[x]?.position
+            || filterPosition.split('/').includes(stateAllPlayers[x]?.position?.slice(0, 1))
+        ) && (
+                filterTeam === 'All' || filterTeam === stateAllPlayers[x]?.team
+            )
+        )
         ?.sort((a, b) => uploadedRankings.rankings[a].prevRank - uploadedRankings.rankings[b].prevRank)
         ?.map(player_id => {
             const offset = new Date().getTimezoneOffset()
-            const kickoff = new Date(parseInt(stateNflSchedule[stateState.display_week]
+            const kickoff = stateNflSchedule[stateState.display_week]
                 ?.find(matchup => matchup.team.find(t => matchTeam(t.id) === stateAllPlayers[player_id]?.team))
-                ?.kickoff * 1000))
+                ?.kickoff
+            const kickoff_formatted = kickoff && new Date(parseInt(kickoff * 1000)) || '-'
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
             return {
                 id: player_id,
                 search: {
-                    text: stateAllPlayers[player_id]?.full_name,
+                    text: `${stateAllPlayers[player_id]?.full_name} ${stateAllPlayers[player_id]?.position} ${stateAllPlayers[player_id]?.team || 'FA'}`,
                     image: {
                         src: player_id,
                         alt: 'player headshot',
@@ -115,7 +123,7 @@ const WeeklyRankings = ({
                         colSpan: 1
                     },
                     {
-                        text: kickoff.toLocaleString("en-US", { weekday: 'short', hour: 'numeric', minute: 'numeric', timeZone: timezone }),
+                        text: kickoff_formatted?.toLocaleString("en-US", { weekday: 'short', hour: 'numeric', minute: 'numeric', timeZone: timezone }),
                         colSpan: 2
                     },
                     {
@@ -169,7 +177,7 @@ const WeeklyRankings = ({
         let r = uploadedRankings.rankings
 
         Object.keys(r || {}).map(player_id => {
-            return r[player_id].prevRank = r[player_id].newRank
+            return r[player_id].prevRank = !parseInt(r[player_id].newRank) ? 999 : r[player_id].newRank
         })
         setUploadedRankings({
             ...uploadedRankings,
@@ -211,9 +219,15 @@ const WeeklyRankings = ({
         };
     }, [])
 
-    const teamFilter = <TeamFilter
+    const positionFilter = <PositionFilter
         filterPosition={filterPosition}
         setFilterPosition={setFilterPosition}
+
+    />
+
+    const teamFilter = <TeamFilter
+        filterTeam={filterTeam}
+        setFilterTeam={setFilterTeam}
 
     />
 
@@ -317,7 +331,8 @@ const WeeklyRankings = ({
             search={true}
             searched={searched}
             setSearched={setSearched}
-            options={[teamFilter]}
+            options1={[teamFilter]}
+            options2={[positionFilter]}
         />
     </>
 }

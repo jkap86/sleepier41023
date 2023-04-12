@@ -1,8 +1,9 @@
 import TableMain from "../Home/tableMain";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import headshot from '../../images/headshot.png';
 import PlayerLeagues from "./player_leagues";
 import TeamFilter from "../Home/teamFilter";
+import PositionFilter from "../Home/positionFilter";
 
 const Players = ({
     stateAllPlayers,
@@ -14,12 +15,25 @@ const Players = ({
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
+    const [filterTeam, setFilterTeam] = useState('All')
 
     const playerShares_headers = [
         [
             {
                 text: 'Player',
                 colSpan: 4,
+                rowSpan: 2,
+                className: 'half'
+            },
+            {
+                text: 'Pos',
+                colSpan: 1,
+                rowSpan: 2,
+                className: 'half'
+            },
+            {
+                text: 'Team',
+                colSpan: 1,
                 rowSpan: 2,
                 className: 'half'
             },
@@ -74,13 +88,17 @@ const Players = ({
     ]
 
     const playerShares_body = statePlayerShares
-        .filter(x => (x.id.includes('_') || stateAllPlayers[x.id])
+        .filter(x =>
+            (
+                x.id.includes('_') || stateAllPlayers[x.id])
             && (
                 filterPosition === stateAllPlayers[x.id]?.position
                 || filterPosition.split('/').includes(stateAllPlayers[x.id]?.position?.slice(0, 1))
                 || (
                     filterPosition === 'Picks' && x.id.includes('_')
                 )
+            ) && (
+                filterTeam === 'All' || stateAllPlayers[x.id]?.team === filterTeam
             )
         )
         .sort((a, b) => b.leagues_owned.length - a.leagues_owned.length)
@@ -94,7 +112,7 @@ const Players = ({
             return {
                 id: player.id,
                 search: {
-                    text: stateAllPlayers[player.id]?.full_name || pick_name,
+                    text: stateAllPlayers[player.id] && `${stateAllPlayers[player.id]?.full_name} ${stateAllPlayers[player.id]?.position} ${stateAllPlayers[player.id]?.team || 'FA'}` || pick_name,
                     image: {
                         src: player.id,
                         alt: 'player photo',
@@ -111,6 +129,14 @@ const Players = ({
                             alt: stateAllPlayers[player.id]?.full_name || player.id,
                             type: 'player'
                         }
+                    },
+                    {
+                        text: stateAllPlayers[player.id]?.position,
+                        colSpan: 1
+                    },
+                    {
+                        text: stateAllPlayers[player.id]?.team || 'FA',
+                        colSpan: 1
                     },
                     {
                         text: player.leagues_owned.length.toString(),
@@ -153,7 +179,19 @@ const Players = ({
             }
         })
 
+    useEffect(() => {
+        if (filterPosition === 'Picks') {
+            setFilterTeam('All')
+        }
+    }, [filterPosition])
+
     const teamFilter = <TeamFilter
+        filterTeam={filterTeam}
+        setFilterTeam={setFilterTeam}
+        picks={true}
+    />
+
+    const positionFilter = <PositionFilter
         filterPosition={filterPosition}
         setFilterPosition={setFilterPosition}
         picks={true}
@@ -173,7 +211,8 @@ const Players = ({
             search={true}
             searched={searched}
             setSearched={setSearched}
-            options={[teamFilter]}
+            options1={[teamFilter]}
+            options2={[positionFilter]}
         />
     </>
 }

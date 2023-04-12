@@ -103,7 +103,7 @@ table.main {
 }
 
 tr.main_wrapper td {
-
+    background-image: radial-gradient(black -100%, darkgray 500%);
     text-shadow: 0 0 1rem black;
 }
 
