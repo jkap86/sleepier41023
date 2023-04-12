@@ -2,6 +2,7 @@ import TableMain from "../Home/tableMain";
 import { useState } from "react";
 import headshot from '../../images/headshot.png';
 import PlayerLeagues from "./player_leagues";
+import TeamFilter from "../Home/teamFilter";
 
 const Players = ({
     stateAllPlayers,
@@ -12,7 +13,7 @@ const Players = ({
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
-
+    const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
 
     const playerShares_headers = [
         [
@@ -73,13 +74,27 @@ const Players = ({
     ]
 
     const playerShares_body = statePlayerShares
-        .filter(x => stateAllPlayers[x.id])
+        .filter(x => (x.id.includes('_') || stateAllPlayers[x.id])
+            && (
+                filterPosition === stateAllPlayers[x.id]?.position
+                || filterPosition.split('/').includes(stateAllPlayers[x.id]?.position?.slice(0, 1))
+                || (
+                    filterPosition === 'Picks' && x.id.includes('_')
+                )
+            )
+        )
         .sort((a, b) => b.leagues_owned.length - a.leagues_owned.length)
         .map(player => {
+            let pick_name;
+            if (player.id.includes('_')) {
+                const pick_split = player.id.split('_')
+                pick_name = `${pick_split[0]} ${pick_split[1]}.${pick_split[2].toLocaleString("en-US", { minimumIntegerDigits: 2 })}`
+            }
+
             return {
                 id: player.id,
                 search: {
-                    text: stateAllPlayers[player.id].full_name,
+                    text: stateAllPlayers[player.id]?.full_name || pick_name,
                     image: {
                         src: player.id,
                         alt: 'player photo',
@@ -88,7 +103,7 @@ const Players = ({
                 },
                 list: [
                     {
-                        text: stateAllPlayers[player.id]?.full_name || `INACTIVE PLAYER`,
+                        text: player.id.includes('_') ? pick_name : stateAllPlayers[player.id]?.full_name || `INACTIVE PLAYER`,
                         colSpan: 4,
                         className: 'left',
                         image: {
@@ -118,12 +133,12 @@ const Players = ({
                         className: 'red'
                     },
                     {
-                        text: player.leagues_available?.length || '0',
+                        text: player.id.includes('_') ? '-' : player.leagues_available?.length || '0',
                         colSpan: 1,
                         className: 'yellow'
                     },
                     {
-                        text: ((player.leagues_available.length / leagues_count) * 100).toFixed(1) + '%',
+                        text: player.id.includes('_') ? '-' : ((player.leagues_available.length / leagues_count) * 100).toFixed(1) + '%',
                         colSpan: 1,
                         className: 'yellow'
                     }
@@ -138,7 +153,14 @@ const Players = ({
             }
         })
 
+    const teamFilter = <TeamFilter
+        filterPosition={filterPosition}
+        setFilterPosition={setFilterPosition}
+        picks={true}
+    />
+
     return <>
+
         <TableMain
             id={'Players'}
             type={'main'}
@@ -151,6 +173,7 @@ const Players = ({
             search={true}
             searched={searched}
             setSearched={setSearched}
+            options={[teamFilter]}
         />
     </>
 }

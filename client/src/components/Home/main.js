@@ -5,6 +5,7 @@ import { getLeagueData } from '../Functions/getLeagueData';
 import { loadingIcon } from "../Functions/misc";
 import View from "./view";
 
+
 const Main = () => {
     const params = useParams();
     const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +81,7 @@ const Main = () => {
 
                 : state_user.error ? <h1>{state_user.error}</h1>
                     : <React.Suspense fallback={loadingIcon}>
+
                         <View
                             stateState={stateState}
                             stateAllPlayers={stateAllPlayers}

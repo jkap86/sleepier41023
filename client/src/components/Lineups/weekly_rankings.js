@@ -4,6 +4,7 @@ import { importRankings } from '../Functions/importRankings';
 import { matchTeam } from "../Functions/misc";
 import { getNewRank } from "../Functions/getNewRank";
 import { utils, writeFile } from 'xlsx';
+import TeamFilter from "../Home/teamFilter";
 
 const WeeklyRankings = ({
     stateAllPlayers,
@@ -18,6 +19,7 @@ const WeeklyRankings = ({
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [edit, setEdit] = useState(false)
+    const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
     const tooltipRef = useRef(null)
 
     console.log(uploadedRankings)
@@ -65,6 +67,8 @@ const WeeklyRankings = ({
     ]
 
     const weekly_rankings_body = Object.keys(uploadedRankings.rankings || {})
+        ?.filter(x => filterPosition === stateAllPlayers[x]?.position
+            || filterPosition.split('/').includes(stateAllPlayers[x]?.position?.slice(0, 1)))
         ?.sort((a, b) => uploadedRankings.rankings[a].prevRank - uploadedRankings.rankings[b].prevRank)
         ?.map(player_id => {
             const offset = new Date().getTimezoneOffset()
@@ -207,6 +211,12 @@ const WeeklyRankings = ({
         };
     }, [])
 
+    const teamFilter = <TeamFilter
+        filterPosition={filterPosition}
+        setFilterPosition={setFilterPosition}
+
+    />
+
     return <>
         <div className='navbar'>
             <p className='select'>
@@ -304,11 +314,10 @@ const WeeklyRankings = ({
             body={weekly_rankings_body}
             page={page}
             setPage={setPage}
-
             search={true}
             searched={searched}
             setSearched={setSearched}
-
+            options={[teamFilter]}
         />
     </>
 }

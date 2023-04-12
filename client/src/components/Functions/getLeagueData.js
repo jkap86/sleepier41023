@@ -37,6 +37,32 @@ export const getLeagueData = (leagues, user_id, state, query_season) => {
 
                 })
 
+                roster.draft_picks.map(pick => {
+                    const pick_text = `${pick.season}_${pick.round}_${pick.order?.toLocaleString("en-US", { minimumIntegerDigits: 2 })}`
+                    let pick_leagues = players_all[pick_text] || {
+                        owned: [],
+                        taken: []
+                    }
+
+                    if (pick.season === parseInt(state.league_season) && parseInt(pick.order)) {
+                        if (roster.user_id === user_id) {
+                            pick_leagues.owned.push({
+                                ...league,
+                                userRoster: roster
+                            })
+                        } else {
+                            pick_leagues.taken.push({
+                                ...league,
+                                lmRoster: roster,
+                                userRoster: userRoster,
+
+                            })
+                        }
+                        players_all[pick_text] = pick_leagues
+                    }
+
+                })
+
                 if (roster.user_id && roster.players) {
                     let leaguemate_leagues = leaguemates_all[roster.user_id] || {
                         user_id: roster.user_id,
@@ -64,7 +90,7 @@ export const getLeagueData = (leagues, user_id, state, query_season) => {
             id: player_id,
             leagues_owned: players_all[player_id].owned,
             leagues_taken: players_all[player_id].taken,
-            leagues_available: leagues
+            leagues_available: player_id.includes('_') ? [] : leagues
                 .filter(l => !l.rosters?.find(r => r.players?.includes(player_id)))
                 .map(league => {
                     return {

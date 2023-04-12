@@ -40,7 +40,7 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
     return <>
         {
             search ?
-                <div ref={searchRef}>
+                <div className='search_filter_wrapper' ref={searchRef}>
                     <Search
                         id={id}
                         sendSearched={(data) => setSearched(data)}
@@ -49,6 +49,9 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
                             return b.search
                         })}
                     />
+                    {
+                        options?.map(option => option)
+                    }
                 </div>
                 :
                 null
@@ -82,13 +85,6 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
                                             : null
                                     }
                                 </ol>
-                        }
-                        {
-                            options ?
-                                <div className='options'>
-                                    {options[0]}
-                                </div>
-                                : null
                         }
                     </>
                 </div>

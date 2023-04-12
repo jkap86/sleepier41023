@@ -29,7 +29,10 @@ exports.boot = async (app) => {
     }
 
     const state = await axios.get('https://api.sleeper.app/v1/state/nfl')
-    app.set('state', state.data)
+    app.set('state', {
+        ...state.data,
+        display_week: Math.max(state.data.display_week, 1)
+    })
 
     const allplayers = await getAllPlayers()
     app.set('allplayers', allplayers)
@@ -52,7 +55,10 @@ exports.boot = async (app) => {
         setInterval(async () => {
 
             const state = await axios.get('https://api.sleeper.app/v1/state/nfl')
-            app.set('state', state.data)
+            app.set('state', {
+                ...state.data,
+                display_week: Math.max(state.data.display_week, 1)
+            })
 
             const allplayers = await getAllPlayers()
             app.set('allplayers', allplayers)

@@ -333,3 +333,11 @@ input.editRank {
         transform: rotate(360deg);
     }
 }
+
+div.search_filter_wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: fit-content;
+    margin: auto;
+}

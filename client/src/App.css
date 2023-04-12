@@ -7,6 +7,10 @@ body {
   --sticky1: 0rem;
   --sticky2: 7rem;
   --sticky3: 14rem;
+  --qb: #ff2a6d;
+  --rb: #00ceb8;
+  --wr: #58a7ff;
+  --te: #ffae58;
   font-size: 1vmin;
   background-color: var(--color1);
 
