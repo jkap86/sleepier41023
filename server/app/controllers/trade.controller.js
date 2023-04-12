@@ -180,7 +180,7 @@ exports.pricecheck = async (req, res) => {
                 [Op.or]: [
                     {
                         adds: {
-                            [req.body.player]: {
+                            [req.body.player_id]: {
                                 [Op.not]: null
                             }
                         }
@@ -204,6 +204,7 @@ exports.pricecheck = async (req, res) => {
 
     res.send(
         pcTrades
+
             .map(trade => trade.dataValues)
             .filter(trade => {
                 const query_pick = trade.draft_picks.find(
