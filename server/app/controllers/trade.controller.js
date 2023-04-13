@@ -196,7 +196,10 @@ exports.pricecheck = async (req, res) => {
                     }
                 ]
             },
-            include: League
+            include: {
+                model: League,
+                attributes: ['name', 'avatar', 'scoring_settings', 'roster_positions']
+            }
         })
     } catch (error) {
         console.log(error)

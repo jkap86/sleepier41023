@@ -102,7 +102,8 @@ table.main {
     outline: 1rem solid black;
 }
 
-table.trade_summary_body td {
+table.trade_summary_body td,
+tr.main>td {
     background-image: radial-gradient(black -50%, darkgray 500%);
     text-shadow: 0 0 1rem black;
 }

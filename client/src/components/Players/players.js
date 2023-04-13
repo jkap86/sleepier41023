@@ -131,11 +131,11 @@ const Players = ({
                         }
                     },
                     {
-                        text: stateAllPlayers[player.id]?.position,
+                        text: stateAllPlayers[player.id]?.position || '-',
                         colSpan: 1
                     },
                     {
-                        text: stateAllPlayers[player.id]?.team || 'FA',
+                        text: player.id.includes('_') ? '-' : stateAllPlayers[player.id]?.team || 'FA',
                         colSpan: 1
                     },
                     {
