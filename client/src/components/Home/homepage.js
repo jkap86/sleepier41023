@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import sleeperLogo from '../../images/sleeper_icon.png';
 import './css/homepage.css';
 

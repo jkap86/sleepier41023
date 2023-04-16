@@ -24,7 +24,10 @@ const View = ({
     statePriceCheckTrades,
     setStatePriceCheckTrades,
     stateNflSchedule,
-    syncLeague
+    syncLeague,
+    stateDynastyRankings,
+    isLoadingTrades,
+    setIsLoadingTrades
 }) => {
     const [tab, setTab] = useState('Players');
     const [type1, setType1] = useState('All');
@@ -56,6 +59,7 @@ const View = ({
                 state_user={state_user}
                 statePlayerShares={statePlayerSharesFiltered}
                 leagues_count={stateLeaguesFiltered.length}
+                stateDynastyRankings={stateDynastyRankings}
             />
             break;
         case 'Leaguemates':
@@ -85,6 +89,9 @@ const View = ({
                 setStatePriceCheckTrades={setStatePriceCheckTrades}
                 stateLeaguematesDict={stateLeaguematesDict}
                 stateLeagues={stateLeagues}
+                stateDynastyRankings={stateDynastyRankings}
+                isLoadingTrades={isLoadingTrades}
+                setIsLoadingTrades={setIsLoadingTrades}
             />
             break;
         case 'Lineups':

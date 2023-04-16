@@ -9,13 +9,18 @@ const Players = ({
     stateAllPlayers,
     state_user,
     statePlayerShares,
-    leagues_count
+    leagues_count,
+    stateDynastyRankings
 }) => {
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
     const [filterTeam, setFilterTeam] = useState('All')
+    const [trendDays, setTrendDays] = useState(30)
+    const [valueType, setValueType] = useState('30')
+
+    console.log(stateDynastyRankings)
 
     const playerShares_headers = [
         [
@@ -26,16 +31,29 @@ const Players = ({
                 className: 'half'
             },
             {
-                text: 'Pos',
+                text: <select className="main_header" value={valueType} onChange={(e) => setValueType(e.target.value)}>
+                    <option>SF</option>
+                    <option>1QB</option>
+                </select>,
                 colSpan: 1,
-                rowSpan: 2,
+                rowSpan: 1,
                 className: 'half'
             },
+
             {
-                text: 'Team',
+                text: <>
+                    <input type={'number'} list={'options'} id='datalist' className={'main_header'} value={trendDays} onChange={(e) => setTrendDays(e.target.value)} />
+                    <datalist id="options">
+                        {
+                            Array.from(Array(Math.max(0, stateDynastyRankings.length - 1)).keys()).map(key => {
+                                return <option key={key + 1}>{key + 1}</option>
+                            })
+                        }
+                    </datalist>
+                </>,
                 colSpan: 1,
-                rowSpan: 2,
-                className: 'half'
+                rowSpan: 1,
+                className: 'half input'
             },
             {
                 text: 'Owned',
@@ -44,35 +62,27 @@ const Players = ({
             },
             {
                 text: 'Taken',
-                colSpan: 2,
+                colSpan: 1,
+                rowSpan: 2,
                 className: 'half'
             },
             {
                 text: 'Available',
-                colSpan: 2,
+                colSpan: 1,
+                rowSpan: 2,
                 className: 'half'
             }
         ],
         [
             {
-                text: 'Total',
+                text: <span><p>KTC Value</p></span>,
                 colSpan: 1,
-                className: 'half'
+                className: 'half small left'
             },
             {
-                text: '%',
+                text: <span><p>Day Trend</p></span>,
                 colSpan: 1,
-                className: 'half'
-            },
-            {
-                text: 'Total',
-                colSpan: 1,
-                className: 'half'
-            },
-            {
-                text: '%',
-                colSpan: 1,
-                className: 'half'
+                className: 'half small left'
             },
             {
                 text: 'Total',
@@ -104,10 +114,33 @@ const Players = ({
         .sort((a, b) => b.leagues_owned.length - a.leagues_owned.length)
         .map(player => {
             let pick_name;
+            let ktc_name;
+            let cur_value;
+            let prev_value;
             if (player.id.includes('_')) {
                 const pick_split = player.id.split('_')
                 pick_name = `${pick_split[0]} ${pick_split[1]}.${pick_split[2].toLocaleString("en-US", { minimumIntegerDigits: 2 })}`
+                ktc_name = `${pick_split[0]} ${parseInt(pick_split[2]) <= 4 ? 'Early' : parseInt(pick_split[2]) >= 9 ? 'Late' : 'Mid'} ${pick_split[1]}`
+
+                cur_value = stateDynastyRankings
+                    ?.find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0])
+                    ?.values[ktc_name]?.[valueType === 'SF' ? 'sf' : 'oneqb']
+
+                prev_value = stateDynastyRankings
+                    ?.find(x => x.date === new Date((new Date().getTime() - (new Date().getTimezoneOffset() * 60000)) - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+                    ?.values[ktc_name]?.[valueType === 'SF' ? 'sf' : 'oneqb']
+            } else {
+
+                cur_value = stateDynastyRankings
+                    ?.find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0])
+                    ?.values[player.id]?.[valueType === 'SF' ? 'sf' : 'oneqb']
+
+
+                prev_value = stateDynastyRankings
+                    ?.find(x => x.date === new Date((new Date().getTime() - (new Date().getTimezoneOffset() * 60000)) - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+                    ?.values[player.id]?.[valueType === 'SF' ? 'sf' : 'oneqb']
             }
+
 
             return {
                 id: player.id,
@@ -121,7 +154,7 @@ const Players = ({
                 },
                 list: [
                     {
-                        text: player.id.includes('_') ? pick_name : stateAllPlayers[player.id]?.full_name || `INACTIVE PLAYER`,
+                        text: player.id.includes('_') ? pick_name : `${stateAllPlayers[player.id]?.position} ${stateAllPlayers[player.id]?.full_name} ${player.id.includes('_') ? '' : stateAllPlayers[player.id]?.team || 'FA'}` || `INACTIVE PLAYER`,
                         colSpan: 4,
                         className: 'left',
                         image: {
@@ -131,11 +164,11 @@ const Players = ({
                         }
                     },
                     {
-                        text: stateAllPlayers[player.id]?.position || '-',
+                        text: cur_value || '-',
                         colSpan: 1
                     },
                     {
-                        text: player.id.includes('_') ? '-' : stateAllPlayers[player.id]?.team || 'FA',
+                        text: (cur_value - prev_value > 0 ? '+' : '') + (cur_value && prev_value && cur_value - prev_value || '-'),
                         colSpan: 1
                     },
                     {
@@ -154,17 +187,7 @@ const Players = ({
                         className: 'red'
                     },
                     {
-                        text: ((player.leagues_taken.length / leagues_count) * 100).toFixed(1) + '%',
-                        colSpan: 1,
-                        className: 'red'
-                    },
-                    {
                         text: player.id.includes('_') ? '-' : player.leagues_available?.length || '0',
-                        colSpan: 1,
-                        className: 'yellow'
-                    },
-                    {
-                        text: player.id.includes('_') ? '-' : ((player.leagues_available.length / leagues_count) * 100).toFixed(1) + '%',
                         colSpan: 1,
                         className: 'yellow'
                     }

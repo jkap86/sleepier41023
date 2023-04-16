@@ -63,31 +63,23 @@ exports.leaguemate = async (req, res) => {
 
         lmTrades = await Trade.findAndCountAll({
             order: [['status_updated', 'DESC']],
-            offset: req.body.offset,
-            limit: req.body.limit,
+            offset: 0,
+            limit: 125,
             where: {
                 [Op.and]: filters
             },
-
+            attributes: ['transaction_id', 'status_updated', 'rosters', 'managers', 'adds', 'drops', 'draft_picks'],
             include: [
                 {
                     model: League,
-                    //attributes: ['name', 'avatar']
+                    attributes: ['name', 'avatar', 'roster_positions', 'scoring_settings']
                 }
             ]
         })
 
-
-
-
-
-
     } catch (error) {
         console.log(error)
     }
-
-
-
 
     res.send(lmTrades)
 

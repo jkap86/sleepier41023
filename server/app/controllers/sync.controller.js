@@ -7,7 +7,7 @@ const axios = require('axios').create({
         'content-type': 'application/json'
     },
     httpsAgent: new https.Agent({ rejectUnauthorized: false, keepAlive: true }),
-    timeout: 1000
+    timeout: 5000
 });
 const axiosRetry = require('axios-retry');
 

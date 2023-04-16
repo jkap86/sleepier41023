@@ -36,7 +36,7 @@ module.exports = (sequelize, Sequelize) => {
     }, {
         indexes: [
             {
-                fields: [{ attribute: 'status_updated', operator: 'DESC' }, 'users'],
+                fields: [{ attribute: 'status_updated', operator: 'DESC' }, 'adds'],
 
 
             }
