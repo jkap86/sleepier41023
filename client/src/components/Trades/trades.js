@@ -207,6 +207,7 @@ const Trades = ({
             break;
     }
 
+    const eastern_time = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))
 
 
     const trades_body = tradesDisplay
@@ -246,12 +247,12 @@ const Trades = ({
                                         const roster = trade.rosters?.find(r => r.user_id === rid)
 
                                         const cur_values = stateDynastyRankings
-                                            .find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() + 240) * 60000).toISOString().split('T')[0])?.values || {}
+                                            .find(x => x.date === new Date(eastern_time).toISOString().split('T')[0])?.values || {}
 
 
-
+                                        console.log({ cur_values: cur_values })
                                         const trans_values = stateDynastyRankings
-                                            .find(x => x.date === new Date(parseInt(trade.status_updated) - (new Date().getTimezoneOffset() + 240) * 60000).toISOString().split('T')[0])?.values
+                                            .find(x => x.date === new Date(parseInt(trade.status_updated) - new Date(parseInt(trade.status_updated)).getTimezoneOffset() * 60000).toISOString().split('T')[0])?.values
 
 
                                         const superflex = trade.league.roster_positions.filter(p => p === 'QB' || p === 'SUPER_FLEX').length > 1 ? true : false
@@ -262,9 +263,9 @@ const Trades = ({
                                             +
                                             trade.draft_picks.filter(p => p.owner_id === roster?.roster_id)
                                                 .reduce((acc, cur) =>
-                                                    acc + parseInt(trans_values?.[
+                                                    acc + (trans_values && parseInt(trans_values?.[
                                                         `${cur.season} ${`${cur.order <= 4 ? 'Early' : cur.order >= 9 ? 'Late' : 'Mid'}`} ${cur.round}`
-                                                    ]?.[superflex ? 'sf' : 'oneqb'] || 0)
+                                                    ]?.[superflex ? 'sf' : 'oneqb'] || 0)) || 0
                                                     , 0)
 
 
@@ -275,9 +276,9 @@ const Trades = ({
                                             +
                                             trade.draft_picks.filter(p => p.owner_id === roster?.roster_id)
                                                 .reduce((acc, cur) =>
-                                                    acc + cur_values && parseInt(cur_values[
+                                                    acc + (cur_values && parseInt(cur_values[
                                                         `${cur.season} ${`${cur.order <= 4 ? 'Early' : cur.order >= 9 ? 'Late' : 'Mid'}`} ${cur.round}`
-                                                    ]?.[superflex ? 'sf' : 'oneqb'] || 0)
+                                                    ]?.[superflex ? 'sf' : 'oneqb'] || 0)) || 0
                                                     , 0)
 
                                         const number = Object.keys(trade.adds || {}).filter(a => trade.adds[a] === roster?.user_id).length
@@ -374,7 +375,7 @@ const Trades = ({
                                                                                 {
                                                                                     cur_values?.[ktc_name]?.[superflex ? 'sf' : 'oneqb'] - trans_values?.[ktc_name]?.[superflex ? 'sf' : 'oneqb'] > 0 ? '+' : ''
                                                                                 }
-                                                                                {cur_values?.[ktc_name] && trans_values?.[ktc_name] && (cur_values?.[ktc_name]?.[superflex ? 'sf' : 'oneqb'] - trans_values?.[ktc_name]?.[superflex ? 'sf' : 'oneqb']).toString() || '-'}
+                                                                                {cur_values?.[ktc_name] && trans_values?.[ktc_name] && ((cur_values?.[ktc_name]?.[superflex ? 'sf' : 'oneqb'] - trans_values?.[ktc_name]?.[superflex ? 'sf' : 'oneqb'])).toString() || '-'}
                                                                             </td>
                                                                         </tr>
                                                                     })
