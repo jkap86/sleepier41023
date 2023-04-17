@@ -246,12 +246,12 @@ const Trades = ({
                                         const roster = trade.rosters?.find(r => r.user_id === rid)
 
                                         const cur_values = stateDynastyRankings
-                                            .find(x => x.date === new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0])?.values
+                                            .find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() + 240) * 60000).toISOString().split('T')[0])?.values || {}
 
 
 
                                         const trans_values = stateDynastyRankings
-                                            .find(x => x.date === new Date(parseInt(trade.status_updated) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0])?.values
+                                            .find(x => x.date === new Date(parseInt(trade.status_updated) - (new Date().getTimezoneOffset() + 240) * 60000).toISOString().split('T')[0])?.values
 
 
                                         const superflex = trade.league.roster_positions.filter(p => p === 'QB' || p === 'SUPER_FLEX').length > 1 ? true : false
@@ -275,7 +275,7 @@ const Trades = ({
                                             +
                                             trade.draft_picks.filter(p => p.owner_id === roster?.roster_id)
                                                 .reduce((acc, cur) =>
-                                                    acc + parseInt(cur_values[
+                                                    acc + cur_values && parseInt(cur_values[
                                                         `${cur.season} ${`${cur.order <= 4 ? 'Early' : cur.order >= 9 ? 'Late' : 'Mid'}`} ${cur.round}`
                                                     ]?.[superflex ? 'sf' : 'oneqb'] || 0)
                                                     , 0)
