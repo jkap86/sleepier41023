@@ -33,7 +33,7 @@ exports.leaguemate = async (req, res) => {
 
         filters.push({
             players: {
-                [Op.contains]: [req.body.player]
+                [Op.contains]: [`${season} ${round}.${order}`]
             }
 
         })
