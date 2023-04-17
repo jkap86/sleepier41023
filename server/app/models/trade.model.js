@@ -21,6 +21,9 @@ module.exports = (sequelize, Sequelize) => {
         users: {
             type: DataTypes.ARRAY(DataTypes.STRING)
         },
+        players: {
+            type: DataTypes.ARRAY(DataTypes.STRING)
+        },
         adds: {
             type: Sequelize.JSONB
         },
@@ -36,7 +39,7 @@ module.exports = (sequelize, Sequelize) => {
     }, {
         indexes: [
             {
-                fields: [{ attribute: 'status_updated', operator: 'DESC' }, 'adds'],
+                fields: [{ attribute: 'status_updated', operator: 'DESC' }, 'players', 'managers'],
 
 
             }

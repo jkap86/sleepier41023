@@ -12,15 +12,11 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
             pageRef.current.focus()
             pageRef.current.scrollIntoView({
                 behavior: 'smooth',
-                inline: 'center'
+                inline: 'center',
+                block: page === 1 ? 'center' : 'start'
             })
         }
-        if (searchRef.current !== null) {
-            searchRef.current.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            })
-        }
+
     }, [pageRef, page])
 
     useEffect(() => {

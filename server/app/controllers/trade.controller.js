@@ -25,35 +25,16 @@ exports.leaguemate = async (req, res) => {
     }
 
     if (req.body.player) {
-
+        console.log(req.body.player)
         const pick_split = req.body.player.split(' ')
         const season = pick_split[0]
         const round = parseInt(pick_split[1]?.split('.')[0])
         const order = parseInt(pick_split[1]?.split('.')[1])
-        console.log({
-            season: season,
-            round: round,
-            order: order
-        })
+
         filters.push({
-            [Op.or]: [
-                {
-                    adds: {
-                        [req.body.player]: {
-                            [Op.not]: null
-                        }
-                    }
-                },
-                {
-                    draft_picks: {
-                        [Op.contains]: [{
-                            season: season,
-                            round: round,
-                            order: order
-                        }]
-                    }
-                }
-            ]
+            players: {
+                [Op.contains]: [req.body.player]
+            }
 
         })
     }
@@ -83,7 +64,7 @@ exports.leaguemate = async (req, res) => {
     } catch (error) {
         console.log(error)
     }
-    console.log({ LMTRADES: lmTrades.rows[0] })
+
     res.send(lmTrades)
 
 }
@@ -191,18 +172,20 @@ exports.pricecheck = async (req, res) => {
                     }
                 ]
             },
+            attributes: ['transaction_id', 'status_updated', 'rosters', 'managers', 'adds', 'drops', 'draft_picks', 'leagueLeagueId'],
             include: {
                 model: League,
-                attributes: ['name', 'avatar', 'scoring_settings', 'roster_positions']
-            }
+                attributes: ['name', 'avatar', 'scoring_settings', 'roster_positions', 'settings']
+            },
+            raw: true
         })
     } catch (error) {
         console.log(error)
     }
-
+    console.log(pcTrades)
     const filteredTrades = [];
     for (const trade of pcTrades) {
-        const dataValues = trade.dataValues;
+        const dataValues = trade;
         const query_pick = dataValues.draft_picks.find(
             (pick) =>
                 pick.season === season &&
