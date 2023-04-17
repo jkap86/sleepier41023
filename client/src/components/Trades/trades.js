@@ -146,7 +146,7 @@ const Trades = ({
             },
             {
                 text: 'League',
-                colSpan: 6
+                colSpan: 7
             }
         ]
     ]
