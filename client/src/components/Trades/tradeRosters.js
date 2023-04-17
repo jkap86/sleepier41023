@@ -8,15 +8,15 @@ const TradeRosters = ({
     return <>
         <LeagueInfo
             league={{
-                ...trade.league,
+                roster_positions: trade['league.roster_positions'],
                 rosters: trade.rosters,
                 settings: {
-                    type: trade.league.type,
-                    best_ball: trade.league.best_ball
+                    type: trade['league.settings'].type,
+                    best_ball: trade['league.settings'].best_ball
                 }
             }}
             stateAllPlayers={stateAllPlayers}
-            scoring_settings={trade.league.scoring_settings}
+            scoring_settings={trade['league.scoring_settings']}
         />
     </>
 }

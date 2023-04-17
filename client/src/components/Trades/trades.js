@@ -232,7 +232,7 @@ const Trades = ({
                                                 className: 'small'
                                             },
                                             {
-                                                text: trade.league?.name,
+                                                text: trade['league.name'],
                                                 colSpan: 7,
 
                                                 image: {
@@ -255,7 +255,7 @@ const Trades = ({
                                             .find(x => x.date === new Date(parseInt(trade.status_updated) - new Date(parseInt(trade.status_updated)).getTimezoneOffset() * 60000).toISOString().split('T')[0])?.values
 
 
-                                        const superflex = trade.league.roster_positions.filter(p => p === 'QB' || p === 'SUPER_FLEX').length > 1 ? true : false
+                                        const superflex = trade['league.roster_positions'].filter(p => p === 'QB' || p === 'SUPER_FLEX').length > 1 ? true : false
                                         const trans_value = Object.keys(trade.adds || {}).filter(a => trade.adds[a] === roster?.user_id)
                                             .reduce((acc, cur) =>
                                                 acc + parseInt(trans_values?.[cur]?.[superflex ? 'sf' : 'oneqb'] || 0)

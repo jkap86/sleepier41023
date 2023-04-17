@@ -25,6 +25,7 @@ exports.leaguemate = async (req, res) => {
     }
 
     if (req.body.player) {
+
         const pick_split = req.body.player.split(' ')
         const season = pick_split[0]
         const round = parseInt(pick_split[1]?.split('.')[0])
@@ -63,8 +64,8 @@ exports.leaguemate = async (req, res) => {
 
         lmTrades = await Trade.findAndCountAll({
             order: [['status_updated', 'DESC']],
-            offset: 0,
-            limit: 125,
+            offset: req.body.offset || 0,
+            limit: req.body.limit || 125,
             where: {
                 [Op.and]: filters
             },
@@ -72,15 +73,17 @@ exports.leaguemate = async (req, res) => {
             include: [
                 {
                     model: League,
-                    attributes: ['name', 'avatar', 'roster_positions', 'scoring_settings']
+                    attributes: ['name', 'avatar', 'roster_positions', 'scoring_settings', 'settings']
+
                 }
-            ]
+            ],
+            raw: true
         })
 
     } catch (error) {
         console.log(error)
     }
-
+    console.log({ LMTRADES: lmTrades.rows[0] })
     res.send(lmTrades)
 
 }
