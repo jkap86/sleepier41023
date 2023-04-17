@@ -68,7 +68,7 @@ exports.leaguemate = async (req, res) => {
             where: {
                 [Op.and]: filters
             },
-            attributes: ['transaction_id', 'status_updated', 'rosters', 'managers', 'adds', 'drops', 'draft_picks'],
+            attributes: ['transaction_id', 'status_updated', 'rosters', 'managers', 'adds', 'drops', 'draft_picks', 'leagueLeagueId'],
             include: [
                 {
                     model: League,
