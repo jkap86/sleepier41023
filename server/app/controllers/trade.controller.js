@@ -64,8 +64,8 @@ exports.leaguemate = async (req, res) => {
 
         lmTrades = await Trade.findAndCountAll({
             order: [['status_updated', 'DESC']],
-            offset: req.body.offset || 0,
-            limit: req.body.limit || 125,
+            offset: req.body.offset,
+            limit: req.body.limit,
             where: {
                 [Op.and]: filters
             },
