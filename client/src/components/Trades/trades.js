@@ -232,7 +232,7 @@ const Trades = ({
                                             },
                                             {
                                                 text: trade.league?.name,
-                                                colSpan: 6,
+                                                colSpan: 7,
 
                                                 image: {
                                                     src: trade.league?.avatar,
@@ -381,7 +381,7 @@ const Trades = ({
                                                             }
                                                         </tbody>
                                                     </table>,
-                                                    colSpan: 3,
+                                                    colSpan: 4,
                                                     rowSpan: 2,
                                                     className: 'small'
                                                 },
@@ -459,7 +459,7 @@ const Trades = ({
                                 ]
                             }
                         />,
-                        colSpan: 9,
+                        colSpan: 10,
                         className: `small `
                     }
 

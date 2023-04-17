@@ -18,7 +18,7 @@ const Players = ({
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
     const [filterTeam, setFilterTeam] = useState('All')
     const [trendDays, setTrendDays] = useState(30)
-    const [valueType, setValueType] = useState('30')
+    const [valueType, setValueType] = useState('SF')
 
     console.log(stateDynastyRankings)
 
