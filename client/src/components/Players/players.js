@@ -123,21 +123,21 @@ const Players = ({
                 ktc_name = `${pick_split[0]} ${parseInt(pick_split[2]) <= 4 ? 'Early' : parseInt(pick_split[2]) >= 9 ? 'Late' : 'Mid'} ${pick_split[1]}`
 
                 cur_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0])
+                    ?.find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() + 240) * 60000).toISOString().split('T')[0])
                     ?.values[ktc_name]?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
                 prev_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date((new Date().getTime() - (new Date().getTimezoneOffset() * 60000)) - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+                    ?.find(x => x.date === new Date((new Date().getTime() - (new Date().getTimezoneOffset() + 240) * 60000) - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
                     ?.values[ktc_name]?.[valueType === 'SF' ? 'sf' : 'oneqb']
             } else {
 
                 cur_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0])
+                    ?.find(x => x.date === new Date(new Date().getTime() - (new Date().getTimezoneOffset() + 240) * 60000).toISOString().split('T')[0])
                     ?.values[player.id]?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
 
                 prev_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date((new Date().getTime() - (new Date().getTimezoneOffset() * 60000)) - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+                    ?.find(x => x.date === new Date((new Date().getTime() - (new Date().getTimezoneOffset() + 240) * 60000) - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
                     ?.values[player.id]?.[valueType === 'SF' ? 'sf' : 'oneqb']
             }
 
