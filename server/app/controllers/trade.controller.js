@@ -33,7 +33,7 @@ exports.leaguemate = async (req, res) => {
 
         filters.push({
             players: {
-                [Op.contains]: [`${season} ${round}.${order}`]
+                [Op.overlap]: [`${season} ${round}.${order}`, req.body.player]
             }
 
         })
