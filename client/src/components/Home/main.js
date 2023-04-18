@@ -20,7 +20,7 @@ const Main = () => {
     const [statePlayerShares, setStatePlayerShares] = useState([]);
     const [stateLmTrades, setStateLmTrades] = useState({});
     const [stateLmLeaguesTrades, setStateLmLeaguesTrades] = useState({});
-    const [statePriceCheckTrades, setStatePriceCheckTrades] = useState({})
+    const [statePriceCheckTrades, setStatePriceCheckTrades] = useState([])
     const [stateDynastyRankings, setStateDynastyRankings] = useState([])
 
     useEffect(() => {
@@ -79,11 +79,12 @@ const Main = () => {
                     offset: stateLmTrades.length,
                     limit: 125
                 })
-
+                console.log(trades.data)
 
                 setStateLmTrades({
                     ...stateLmTrades,
                     count: trades.data.count,
+                    leagues: trades.data.leagues,
                     trades: getTradeTips(trades.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season)
                 })
 

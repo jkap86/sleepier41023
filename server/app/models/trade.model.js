@@ -35,12 +35,15 @@ module.exports = (sequelize, Sequelize) => {
         },
         drafts: {
             type: Sequelize.JSONB
+        },
+        price_check: {
+            type: Sequelize.JSONB
         }
     }, {
         indexes: [
             {
                 fields: [{ attribute: 'status_updated', operator: 'DESC' }, 'players', 'managers'],
-
+                using: 'HASH'
 
             }
         ]

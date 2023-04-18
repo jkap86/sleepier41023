@@ -4,43 +4,52 @@ const User = db.users;
 const Trade = db.trades;
 const League = db.leagues;
 const Op = db.Sequelize.Op
-const queryInterface = db.sequelize.getQueryInterface();
+const sequelize = db.sequelize
 
 
 exports.leaguemate = async (req, res) => {
     let filters = [];
 
-    if (req.body.leaguemates) {
-        filters.push({
-            managers: {
-                [Op.overlap]: req.body.leaguemates
-            }
-        })
-    } else if (req.body.manager) {
+    if (req.body.manager) {
         filters.push({
             managers: {
                 [Op.contains]: [req.body.manager]
             }
         })
+    } else if (req.body.leaguemates) {
+        filters.push({
+            managers: {
+                [Op.overlap]: req.body.leaguemates
+            }
+        })
+
     }
 
     if (req.body.player) {
-        console.log(req.body.player)
-        const pick_split = req.body.player.split(' ')
-        const season = pick_split[0]
-        const round = parseInt(pick_split[1]?.split('.')[0])
-        const order = parseInt(pick_split[1]?.split('.')[1])
+        if (req.body.player.includes('.')) {
+            const pick_split = req.body.player.split(' ')
+            const season = pick_split[0]
+            const round = parseInt(pick_split[1]?.split('.')[0])
+            const order = parseInt(pick_split[1]?.split('.')[1])
 
-        filters.push({
-            players: {
-                [Op.overlap]: [`${season} ${round}.${order}`, req.body.player]
-            }
+            filters.push({
+                price_check: {
+                    [Op.contains]: [`${season} ${round}.${order}`]
+                }
 
-        })
+            })
+        } else {
+            filters.push({
+                price_check: {
+                    [Op.contains]: [req.body.player]
+                }
+
+            })
+        }
     }
 
     let lmTrades;
-
+    let leagues;
     try {
 
         lmTrades = await Trade.findAndCountAll({
@@ -54,13 +63,13 @@ exports.leaguemate = async (req, res) => {
             include: [
                 {
                     model: League,
-                    attributes: ['name', 'avatar', 'roster_positions', 'scoring_settings', 'settings']
+                    attributes: ['name', 'avatar', 'roster_positions', 'scoring_settings', 'settings'],
 
                 }
             ],
+            subquery: true,
             raw: true
         })
-
     } catch (error) {
         console.log(error)
     }
@@ -144,33 +153,62 @@ exports.leaguemateLeagues = async (req, res) => {
 }
 
 exports.pricecheck = async (req, res) => {
-    const pick_split = req.body.player_id.split(' ')
-    const season = pick_split[0]
-    const round = parseInt(pick_split[1]?.split('.')[0])
-    const order = parseInt(pick_split[1]?.split('.')[1])
+    let filters = [];
+
+
+    if (req.body.player.includes('.')) {
+        const pick_split = req.body.player.split(' ')
+        const season = pick_split[0]
+        const round = parseInt(pick_split[1]?.split('.')[0])
+        const order = parseInt(pick_split[1]?.split('.')[1])
+
+        filters.push({
+            price_check: {
+                [Op.contains]: [`${season} ${round}.${order}`]
+            }
+        })
+    } else {
+        filters.push({
+            price_check: {
+                [Op.contains]: [req.body.player]
+            }
+
+        })
+    }
+
+    if (req.body.player2) {
+        if (req.body.player2.includes('.')) {
+            const pick_split = req.body.player2.split(' ')
+            const season = pick_split[0]
+            const round = parseInt(pick_split[1]?.split('.')[0])
+            const order = parseInt(pick_split[1]?.split('.')[1])
+
+            filters.push({
+                players: {
+                    [Op.contains]: [`${season} ${round}.${order}`]
+                }
+            })
+        } else {
+            filters.push({
+                players: {
+                    [Op.contains]: [req.body.player2]
+                }
+            })
+        }
+
+
+    }
+
 
     let pcTrades;
+    let managers;
     try {
-        pcTrades = await Trade.findAll({
+        pcTrades = await Trade.findAndCountAll({
+            order: [['status_updated', 'DESC']],
+            offset: req.body.offset,
+            limit: req.body.limit,
             where: {
-                [Op.or]: [
-                    {
-                        adds: {
-                            [req.body.player_id]: {
-                                [Op.not]: null
-                            }
-                        }
-                    },
-                    {
-                        draft_picks: {
-                            [Op.contains]: [{
-                                season: season,
-                                round: round,
-                                order: order
-                            }]
-                        }
-                    }
-                ]
+                [Op.and]: filters
             },
             attributes: ['transaction_id', 'status_updated', 'rosters', 'managers', 'adds', 'drops', 'draft_picks', 'leagueLeagueId'],
             include: {
@@ -179,10 +217,16 @@ exports.pricecheck = async (req, res) => {
             },
             raw: true
         })
+
+
     } catch (error) {
         console.log(error)
     }
-    console.log(pcTrades)
+
+
+
+    res.send(pcTrades)
+    /*
     const filteredTrades = [];
     for (const trade of pcTrades) {
         const dataValues = trade;
@@ -204,4 +248,5 @@ exports.pricecheck = async (req, res) => {
     }
 
     res.send(filteredTrades);
+    */
 }
