@@ -5,9 +5,11 @@ module.exports = app => {
 
     var router = require("express").Router();
 
-
+    router.post("/stats", dynastyrankings.stats)
 
     router.post("/find", dynastyrankings.find)
+
+    //  router.post('/adddate', dynastyrankings.addDate)
 
     app.use('/dynastyrankings', router);
 }

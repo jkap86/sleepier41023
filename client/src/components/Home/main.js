@@ -21,11 +21,12 @@ const Main = () => {
     const [stateLmTrades, setStateLmTrades] = useState({});
     const [stateLmLeaguesTrades, setStateLmLeaguesTrades] = useState({});
     const [statePriceCheckTrades, setStatePriceCheckTrades] = useState([])
-    const [stateDynastyRankings, setStateDynastyRankings] = useState([])
+
 
     useEffect(() => {
         const fetchLeagues = async () => {
             setIsLoading(true)
+
             const user = await axios.post('/user/create', {
                 username: params.username,
                 season: params.season
@@ -35,9 +36,9 @@ const Main = () => {
                 setState_User(user.data[0])
 
 
-                const [home, rankings, leagues] = await Promise.all([
+                const [home, leagues] = await Promise.all([
                     await axios.get('/home'),
-                    await axios.post('/dynastyrankings/find'),
+
                     await axios.post('/league/find', {
                         user_id: user.data[0]?.user_id,
                         season: params.season
@@ -50,7 +51,7 @@ const Main = () => {
                 setStateState(home.data.state)
                 setStateAllPlayers(home.data.allplayers)
                 setStateNflSchedule(home.data.schedule)
-                setStateDynastyRankings(rankings.data)
+
                 setState_User(user.data[0])
                 setStateLeagues(data.leagues)
                 setStatePlayerShares(data.players)
@@ -89,8 +90,6 @@ const Main = () => {
                 })
 
 
-            } else {
-                setStateLmTrades({ ...stateLmTrades })
             }
 
 
@@ -101,6 +100,8 @@ const Main = () => {
             fetchTrades()
         }
     }, [state_user, stateLeaguematesDict])
+
+
 
 
     const syncLeague = async (league_id) => {
@@ -144,9 +145,10 @@ const Main = () => {
                             setStatePriceCheckTrades={setStatePriceCheckTrades}
                             stateNflSchedule={stateNflSchedule}
                             syncLeague={syncLeague}
-                            stateDynastyRankings={stateDynastyRankings}
+
                             isLoadingTrades={isLoadingTrades}
                             setIsLoadingTrades={setIsLoadingTrades}
+
                         />
                     </React.Suspense>
 

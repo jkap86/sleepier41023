@@ -187,7 +187,7 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
                                                         (itemActive !== item.id || !item.secondary_table) ? null :
                                                             <tr className={`${type}2 click ${itemActive === item.id ? 'active' : ''}`}
                                                             >
-                                                                <td colSpan={item.list.reduce((acc, cur) => acc + cur.colSpan, 0)}>
+                                                                <td colSpan={item.list.reduce((acc, cur) => acc + (cur.colSpan || 0), 0)}>
                                                                     {item.secondary_table}
                                                                 </td>
                                                             </tr>

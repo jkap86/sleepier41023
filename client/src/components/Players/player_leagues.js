@@ -1,11 +1,30 @@
 import TableMain from "../Home/tableMain";
 import { useState } from "react";
+import LeagueInfo from "../Leagues/leagueInfo";
 
-const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available }) => {
+const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, trend_games, player_id, stateAllPlayers }) => {
     const [tab, setTab] = useState('Owned');
     const [page, setPage] = useState(1)
+    const [itemActive, setItemActive] = useState('');
 
-    const player_leagues_headers = [
+    const getPlayerScore = (stats_array, scoring_settings) => {
+        let total_breakdown = {};
+
+        stats_array?.map(stats_game => {
+            Object.keys(stats_game.stats || {})
+                .filter(x => Object.keys(scoring_settings).includes(x))
+                .map(key => {
+                    if (!total_breakdown[key]) {
+                        total_breakdown[key] = 0
+                    }
+                    total_breakdown[key] += stats_game.stats[key] * scoring_settings[key]
+                })
+        })
+
+        return total_breakdown;
+    }
+
+    let player_leagues_headers = [
         [
             {
                 text: 'League',
@@ -13,20 +32,27 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available }) => {
                 className: 'half'
             },
             {
+                text: 'PPG',
+                colSpan: 1
+            },
+            {
                 text: 'Rank',
                 colSpan: 1,
                 className: 'half'
-            },
-            tab === 'Taken' ?
-                {
-                    text: 'Manager',
-                    colSpan: 2,
-                    className: 'half'
-                }
-                :
-                ''
+            }
         ]
     ]
+
+    if (tab === 'Taken') {
+        player_leagues_headers[0].push(
+            {
+                text: 'Manager',
+                colSpan: 2,
+                className: 'half'
+            }
+        )
+    }
+
 
     const leagues_display = tab === 'Owned' ? leagues_owned :
         tab === 'Taken' ? leagues_taken :
@@ -34,6 +60,7 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available }) => {
                 null
 
     const player_leagues_body = leagues_display.map(lo => {
+        const player_score = getPlayerScore(trend_games, lo.scoring_settings)
         return {
             id: lo.league_id,
             list: [
@@ -46,6 +73,10 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available }) => {
                         alt: lo.name,
                         type: 'league'
                     }
+                },
+                {
+                    text: trend_games?.length > 0 && (Object.keys(player_score || {}).reduce((acc, cur) => acc + player_score[cur], 0) / trend_games.length).toFixed(1) || '-',
+                    colSpan: 1
                 },
                 {
                     text: lo.userRoster?.rank,
@@ -65,11 +96,20 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available }) => {
                             type: 'user'
                         }
                     }
-                    :
-                    ''
-            ]
+                    : ''
+
+            ],
+            secondary_table: (
+                <LeagueInfo
+                    stateAllPlayers={stateAllPlayers}
+                    scoring_settings={lo.scoring_settings}
+                    league={lo}
+                    type='tertiary'
+                />
+            )
         }
     })
+
 
     return <>
         <div className="secondary nav">
@@ -96,8 +136,9 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available }) => {
             type={'secondary'}
             headers={player_leagues_headers}
             body={player_leagues_body}
-            page={page}
-            setPage={setPage}
+
+            itemActive={itemActive}
+            setItemActive={setItemActive}
         />
     </>
 }

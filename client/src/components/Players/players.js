@@ -4,30 +4,81 @@ import headshot from '../../images/headshot.png';
 import PlayerLeagues from "./player_leagues";
 import TeamFilter from "../Home/teamFilter";
 import PositionFilter from "../Home/positionFilter";
+import '../Home/css/modal.css';
+import { getLocalDate } from '../Functions/dates';
+import axios from 'axios';
 
 const Players = ({
     stateAllPlayers,
     state_user,
     statePlayerShares,
-    leagues_count,
-    stateDynastyRankings
+    leagues_count
 }) => {
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
     const [filterTeam, setFilterTeam] = useState('All')
-    const [trendDays, setTrendDays] = useState(30)
+    const [trendDateStart, setTrendDateStart] = useState()
+    const [trendDateEnd, setTrendDateEnd] = useState()
     const [valueType, setValueType] = useState('SF')
+    const [optionsVisible, setOptionsVisible] = useState(false)
+    const [snapPercentage, setSnapPercentage] = useState(0)
+    const [stateDynastyRankings, setStateDynastyRankings] = useState([])
+    const [stateStats, setStateStats] = useState({})
 
     console.log(stateDynastyRankings)
 
+    useEffect(() => {
+        const fetchStats = async () => {
+            const [stats, rankings] = await Promise.all([
+                await axios.post('/dynastyrankings/stats', {
+                    players: statePlayerShares.map(player => player.id),
+                    date1: trendDateStart,
+                    date2: trendDateEnd
+                }),
+                await axios.post('/dynastyrankings/find', {
+                    players: statePlayerShares.map(player => player.id),
+                    date1: trendDateStart,
+                    date2: trendDateEnd
+                })
+            ])
+
+            setStateDynastyRankings(rankings.data)
+
+            setStateStats(stats.data)
+
+        }
+        if (statePlayerShares.length > 0 && trendDateStart && trendDateEnd) {
+            fetchStats()
+        }
+    }, [statePlayerShares, trendDateStart, trendDateEnd])
+
+    useEffect(() => {
+        const today_eastern = new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
+
+
+        const thirty_days = new Date(new Date() - 30 * 24 * 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
+
+        console.log(thirty_days)
+
+
+        setTrendDateStart(thirty_days)
+        setTrendDateEnd(today_eastern)
+
+    }, [])
     const playerShares_headers = [
         [
             {
                 text: 'Player',
                 colSpan: 4,
                 rowSpan: 2,
+                className: 'half'
+            },
+
+            {
+                text: 'Owned',
+                colSpan: 2,
                 className: 'half'
             },
             {
@@ -42,48 +93,19 @@ const Players = ({
 
             {
                 text: <>
-                    <input type={'number'} list={'options'} id='datalist' className={'main_header'} value={trendDays} onChange={(e) => setTrendDays(e.target.value)} />
-                    <datalist id="options">
-                        {
-                            Array.from(Array(Math.max(0, stateDynastyRankings.length - 1)).keys()).map(key => {
-                                return <option key={key + 1}>{key + 1}</option>
-                            })
-                        }
-                    </datalist>
+                    {`${trendDateStart} to ${trendDateEnd}`}
+                    <i
+                        className="fa-solid fa-filter fa-beat"
+                        onClick={() => setOptionsVisible(prevState => !prevState)}
+                    >
+
+                    </i>
                 </>,
-                colSpan: 1,
-                rowSpan: 1,
-                className: 'half input'
-            },
-            {
-                text: 'Owned',
-                colSpan: 2,
-                className: 'half'
-            },
-            {
-                text: 'Taken',
-                colSpan: 1,
-                rowSpan: 2,
-                className: 'half'
-            },
-            {
-                text: 'Available',
-                colSpan: 1,
-                rowSpan: 2,
-                className: 'half'
+                colSpan: 3,
+                className: 'xsmall'
             }
         ],
         [
-            {
-                text: <span><p>KTC Value</p></span>,
-                colSpan: 1,
-                className: 'half small left'
-            },
-            {
-                text: <span><p>Day Trend</p></span>,
-                colSpan: 1,
-                className: 'half small left'
-            },
             {
                 text: 'Total',
                 colSpan: 1,
@@ -93,11 +115,29 @@ const Players = ({
                 text: '%',
                 colSpan: 1,
                 className: 'half'
+            },
+            {
+                text: <span><p>KTC Value</p></span>,
+                colSpan: 1,
+                className: 'half small left'
+            },
+            {
+                text: 'Trend',
+                colSpan: 1,
+                className: 'half small left'
+            },
+            {
+                text: 'GP',
+                colSpan: 1
+            },
+            {
+                text: 'PPG',
+                colSpan: 1
             }
         ]
     ]
 
-    const eastern_time = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))
+
     const playerShares_body = statePlayerShares
         .filter(x =>
             (
@@ -123,24 +163,38 @@ const Players = ({
                 pick_name = `${pick_split[0]} ${pick_split[1]}.${pick_split[2].toLocaleString("en-US", { minimumIntegerDigits: 2 })}`
                 ktc_name = `${pick_split[0]} ${parseInt(pick_split[2]) <= 4 ? 'Early' : parseInt(pick_split[2]) >= 9 ? 'Late' : 'Mid'} ${pick_split[1]}`
 
+
                 cur_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date(eastern_time).toISOString().split('T')[0])
-                    ?.values[ktc_name]?.[valueType === 'SF' ? 'sf' : 'oneqb']
+                    ?.find(dr => getLocalDate(dr.date) === getLocalDate(trendDateEnd))
+                    ?.values[ktc_name]
+                    ?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
                 prev_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date(eastern_time - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-                    ?.values[ktc_name]?.[valueType === 'SF' ? 'sf' : 'oneqb']
+                    ?.find(dr => getLocalDate(dr.date) === getLocalDate(trendDateStart))
+                    ?.values[ktc_name]
+                    ?.[valueType === 'SF' ? 'sf' : 'oneqb']
             } else {
 
-                cur_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date(eastern_time).toISOString().split('T')[0])
-                    ?.values[player.id]?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
+                cur_value = stateDynastyRankings
+                    ?.find(dr => dr.date.toString() === trendDateEnd.toString())
+                    ?.values[player.id]
+                    ?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
                 prev_value = stateDynastyRankings
-                    ?.find(x => x.date === new Date(eastern_time - trendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-                    ?.values[player.id]?.[valueType === 'SF' ? 'sf' : 'oneqb']
+                    ?.find(dr => dr.date.toString() === trendDateStart.toString())
+                    ?.values[player.id]
+                    ?.[valueType === 'SF' ? 'sf' : 'oneqb']
+
             }
+
+            const trend_games = stateStats?.[player.id]
+                ?.filter(s =>
+                    new Date(s.date).getTime() < new Date(trendDateEnd).getTime()
+                    && new Date(s.date).getTime() > new Date(trendDateStart).getTime()
+                    && s.stats.pts_ppr
+                    && s.stats.tm_off_snp > 0 && ((s.stats.snp || s.stats.off_snp || 0) / (s.stats.tm_off_snp) > snapPercentage)
+                )
 
 
             return {
@@ -164,14 +218,7 @@ const Players = ({
                             type: 'player'
                         }
                     },
-                    {
-                        text: cur_value || '-',
-                        colSpan: 1
-                    },
-                    {
-                        text: (cur_value - prev_value > 0 ? '+' : '') + (cur_value && prev_value && cur_value - prev_value || '-'),
-                        colSpan: 1
-                    },
+
                     {
                         text: player.leagues_owned.length.toString(),
                         colSpan: 1,
@@ -183,12 +230,20 @@ const Players = ({
                         className: 'green'
                     },
                     {
-                        text: player.leagues_taken.length.toString(),
+                        text: cur_value || '-',
+                        colSpan: 1
+                    },
+                    {
+                        text: (cur_value && prev_value && cur_value - prev_value) || '-',
+                        colSpan: 1
+                    },
+                    {
+                        text: trend_games?.length || '-',
                         colSpan: 1,
                         className: 'red'
                     },
                     {
-                        text: player.id.includes('_') ? '-' : player.leagues_available?.length || '0',
+                        text: trend_games?.length > 0 && (trend_games?.reduce((acc, cur) => acc + cur.stats.pts_ppr, 0) / trend_games?.length)?.toFixed(1) || '-',
                         colSpan: 1,
                         className: 'yellow'
                     }
@@ -198,6 +253,9 @@ const Players = ({
                         leagues_owned={player.leagues_owned}
                         leagues_taken={player.leagues_taken}
                         leagues_available={player.leagues_available}
+                        trend_games={trend_games}
+                        player_id={player.id}
+                        stateAllPlayers={stateAllPlayers}
                     />
                 )
             }
@@ -221,7 +279,45 @@ const Players = ({
         picks={true}
     />
 
+
     return <>
+        {
+            optionsVisible ?
+                <div className="modal">
+                    <div className="modal-grid">
+                        <button className="close" onClick={() => setOptionsVisible(false)}>Close</button>
+                        <div className="modal-grid-item">
+                            <div className="modal-grid-content header"><strong>Trend Range</strong>
+                            </div>
+                            <div className="modal-grid-content one">
+
+                                <input type={'date'} defaultValue={trendDateStart} onBlur={(e) => e.target.value && setTrendDateStart(new Date(e.target.value).toISOString().split('T')[0])} />
+
+                            </div>
+                            <div className="modal-grid-content three">
+
+                                <input type={'date'} defaultValue={trendDateEnd} onBlur={(e) => e.target.value && setTrendDateEnd(new Date(e.target.value).toISOString().split('T')[0])} />
+
+                            </div>
+                        </div>
+                        <div className="modal-grid-item">
+                            <div className="modal-grid-content header">
+                                <strong>Game Filters</strong>
+                            </div>
+                        </div>
+                        <div className="modal-grid-item">
+                            <div className="modal-grid-content one">
+                                <strong>Snap %</strong>
+                            </div>
+                            <div className="modal-grid-content two">
+                                Min <input type={'number'} defaultValue={snapPercentage} onBlur={(e) => setSnapPercentage(e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                :
+                null
+        }
 
         <TableMain
             id={'Players'}

@@ -202,6 +202,7 @@ exports.pricecheck = async (req, res) => {
 
     let pcTrades;
     let managers;
+    let players2;
     try {
         pcTrades = await Trade.findAndCountAll({
             order: [['status_updated', 'DESC']],
@@ -218,6 +219,16 @@ exports.pricecheck = async (req, res) => {
             raw: true
         })
 
+        if (!req.body.player2) {
+            players2 = await Trade.findAll({
+                where: {
+                    [Op.and]: filters
+                },
+                attributes: ['players'],
+                raw: true
+            })
+        }
+
 
     } catch (error) {
         console.log(error)
@@ -225,7 +236,7 @@ exports.pricecheck = async (req, res) => {
 
 
 
-    res.send(pcTrades)
+    res.send({ ...pcTrades, players2: Array.from(new Set(players2?.flat() || [])) })
     /*
     const filteredTrades = [];
     for (const trade of pcTrades) {

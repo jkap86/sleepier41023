@@ -149,6 +149,10 @@ td.small {
     font-size: 90%;
 }
 
+td.xsmall,
+th.xsmall {
+    font-size: 75%;
+}
 
 
 table.main td {
@@ -333,7 +337,8 @@ select.main_header {
     margin: 0;
     background-color: var(--color2);
     color: black;
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
     font-family: 'GROUPE', sans-serif;
     font-weight: 900;
     text-align: center;
@@ -341,9 +346,14 @@ select.main_header {
     font-size: 2rem;
     box-sizing: border-box;
     border-radius: 5rem;
+    border: none;
+    display: inline;
+    padding: .25rem;
 }
 
-
+select.main_header.half {
+    width: 50%;
+}
 
 @keyframes rotation {
 

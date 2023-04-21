@@ -26,8 +26,11 @@ const View = ({
     stateNflSchedule,
     syncLeague,
     stateDynastyRankings,
+    setStateDynastyRankings,
     isLoadingTrades,
-    setIsLoadingTrades
+    setIsLoadingTrades,
+    stateStats,
+    setStateStats
 }) => {
     const [tab, setTab] = useState('Players');
     const [type1, setType1] = useState('All');
@@ -59,7 +62,7 @@ const View = ({
                 state_user={state_user}
                 statePlayerShares={statePlayerSharesFiltered}
                 leagues_count={stateLeaguesFiltered.length}
-                stateDynastyRankings={stateDynastyRankings}
+
             />
             break;
         case 'Leaguemates':

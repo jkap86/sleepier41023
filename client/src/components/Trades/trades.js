@@ -19,7 +19,6 @@ const Trades = ({
     setStatePriceCheckTrades,
     stateLeaguematesDict,
     stateLeagues,
-    stateDynastyRankings,
     isLoadingTrades,
     setIsLoadingTrades
 }) => {
@@ -33,10 +32,37 @@ const Trades = ({
     const [searched_manager, setSearched_Manager] = useState('')
     const [pricecheck_player, setPricecheck_player] = useState('')
     const [pricecheck_player2, setPricecheck_player2] = useState('')
-
+    const [stateDynastyRankings, setStateDynastyRankings] = useState([])
     const [filterType, setFilterType] = useState('Player')
 
-    console.log(stateLmTrades)
+
+    let tradesDisplay;
+    let tradeCount;
+
+    console.log(stateDynastyRankings)
+    useEffect(() => {
+        const players = Array.from(new Set(tradesDisplay.map(trade => Object.keys(trade.adds)).flat()))
+        const dates = tradesDisplay.map(trade => trade.status_updated)
+
+        const start = Math.min(...dates)
+        const end = Math.max(...dates)
+        const fetchStats = async () => {
+            const rankings = await axios.post('/dynastyrankings/find', {
+                players: players,
+                date1: start,
+                date2: end
+            })
+
+            setStateDynastyRankings(rankings.data)
+
+
+
+        }
+        if (tradesDisplay) {
+            fetchStats()
+        }
+
+    }, [tradesDisplay])
 
     useEffect(() => {
         setStateLmTrades({ ...stateLmTrades })
@@ -137,8 +163,7 @@ const Trades = ({
         ]
     ]
 
-    let tradesDisplay;
-    let tradeCount;
+
     switch (tab) {
         case 'Leaguemate Trades':
 

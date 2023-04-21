@@ -1,4 +1,4 @@
-export const getLeagueData = (leagues, user_id, state, query_season) => {
+export const getLeagueData = (leagues, user_id, state) => {
     let leagues_all = []
     let players_all = {};
     let leaguemates_all = [];
