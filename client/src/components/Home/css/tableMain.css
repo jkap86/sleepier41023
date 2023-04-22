@@ -209,8 +209,10 @@ tr.secondary.active {
 
 
 table.tertiary.subs thead,
-table.tertiary.subs th {
-    z-index: 3;
+table.tertiary.subs th,
+table.tertiary.lineup thead,
+table.tertiary.lineup th {
+    z-index: 4;
     position: sticky;
     top: 28rem;
 }
@@ -234,6 +236,8 @@ table.tertiary.subs td {
     position: sticky;
     top: 28rem;
 }
+
+
 
 
 table.secondary.subs,
