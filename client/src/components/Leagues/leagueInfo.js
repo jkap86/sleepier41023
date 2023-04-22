@@ -7,7 +7,11 @@ import { Link } from "react-router-dom";
 const LeagueInfo = ({
     stateAllPlayers,
     league,
-    scoring_settings
+    scoring_settings,
+    stateStats,
+    getPlayerScore,
+    snapPercentage,
+    type
 }) => {
     const [itemActive, setItemActive] = useState('');
     const [secondaryContent, setSecondaryContent] = useState('Lineup')
@@ -126,6 +130,9 @@ const LeagueInfo = ({
         })
 
     const players_body = display.map((starter, index) => {
+        const trend_games = stateStats?.[starter]
+            ?.filter(s => s.stats.tm_off_snp > 0 && ((s.stats.snp || s.stats.off_snp || 0) / (s.stats.tm_off_snp) > snapPercentage))
+        const player_score = getPlayerScore && getPlayerScore(trend_games, scoring_settings)
         return {
             id: starter,
             list: [
@@ -145,7 +152,7 @@ const LeagueInfo = ({
                     }
                 },
                 {
-                    text: stateAllPlayers[starter]?.age || '-',
+                    text: trend_games && (Object.keys(player_score || {}).reduce((acc, cur) => acc + player_score[cur], 0) / trend_games.length).toFixed(1) || '-',
                     colSpan: 5
                 }
             ]
@@ -220,7 +227,7 @@ const LeagueInfo = ({
             ]
 
     return <>
-        <div className="secondary nav">
+        <div className={`${type || 'secondary'} nav`}>
             <div>
                 {
                     league.roster_positions.includes('K') ?
@@ -280,14 +287,14 @@ const LeagueInfo = ({
             </div>
         </div>
         <TableMain
-            type={'secondary subs'}
+            type={`${type || 'secondary'} subs`}
             headers={standings_headers}
             body={standings_body}
             itemActive={itemActive}
             setItemActive={setItemActive}
         />
         <TableMain
-            type={'secondary lineup'}
+            type={`${type || 'secondary'} lineup`}
             headers={leagueInfo_headers}
             body={leagueInfo_body}
         />

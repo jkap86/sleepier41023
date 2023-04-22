@@ -92,7 +92,7 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
         }
 
 
-        <table className={type}>
+        <table className={type} id={id}>
             {
                 caption ?
                     <caption>

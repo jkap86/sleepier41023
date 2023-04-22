@@ -113,13 +113,13 @@ const TradeTargets = ({
         ]
     ]
 
-    const trade_flips_body = !trade.tips?.trade_away?.length > 0 ? [{ id: 'NONE', list: [{ text: '-', colSpan: 9 }] }] : trade.tips?.trade_away?.map(add => {
+    const trade_flips_body = !trade.tips?.trade_away?.length > 0 ? [{ id: 'NONE', list: [{ text: '-', colSpan: 9 }] }] : trade.tips?.trade_away?.map((add, index) => {
 
         return {
-            id: `${add.manager.user_id}_${add.type === 'player' ? stateAllPlayers[add.player_id]?.full_name
+            id: (`${add.manager.user_id}_${add.type === 'player' ? stateAllPlayers[add.player_id]?.full_name
                 : `${add.player_id.season} ` + (add.player_id.season === stateState.league_season && add.player_id.order ? `${add.player_id.round}.${add.player_id.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}`
                     : add.manager.user_id !== state_user.user_id ? `Round ${add.player_id.round} (${add.manager.username})`
-                        : `Round ${add.player_id.round}`)}_${add.league.league_id}`,
+                        : `Round ${add.player_id.round}`)}_${add.league.league_id}`) + `_${index}`,
             list: [
                 {
                     text: add.manager.username,

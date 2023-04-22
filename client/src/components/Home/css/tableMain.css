@@ -10,13 +10,32 @@ tr.main_wrapper.active table.main_body {
     top: 14rem;
 }
 
-tr.main.click.active tr.trade_summary_wrapper:first-of-type>td,
+tr.main.click.active tr.trade_summary_wrapper:first-of-type,
 tr.main.click.active {
+    position: sticky;
+    top: var(--sticky2);
+    z-index: 6;
+}
+
+tr.main.click.active tr.trade_summary_wrapper {
     position: sticky;
     top: var(--sticky2);
     z-index: 5;
 }
 
+table.secondary.subs,
+table.secondary.lineup {
+    position: sticky;
+    top: 7rem;
+    z-index: 6;
+}
+
+table.tertiary.subs,
+table.tertiary.lineup {
+    position: sticky;
+    top: 14rem;
+    z-index: 5;
+}
 
 table.secondary,
 table.secondary.lineup,
@@ -28,26 +47,39 @@ table.secondary>thead {
     z-index: 5;
 }
 
+table.tertiary,
+table.tertiary.lineup,
+table.tertiary.subs,
+div.tertiary.nav {
+    position: sticky;
+    top: 21rem;
+    z-index: 3;
+}
+
 table.secondary.lineup,
-table.secondary.subs {
+table.secondary.subs,
+table.tertiary.lineup,
+table.tertiary.subs {
     font-size: 75%;
 }
 
 table.secondary.lineup img.thumbnail,
-table.secondary.subs img.thumbnail {
+table.secondary.subs img.thumbnail,
+table.tertiary.lineup img.thumbnail,
+table.tertiary.subs img.thumbnail {
     height: 5rem;
     width: 5rem;
-}
-
-table.secondary>tbody>tr {
-    position: sticky;
-    top: var(--sticky3);
-    z-index: 1;
 }
 
 table.secondary {
     z-index: 5;
 }
+
+table#trades table.secondary {
+    z-index: 6;
+}
+
+table.trades table.secondary {}
 
 ol.page_numbers {
     display: flex;
@@ -114,7 +146,8 @@ tr.main>td {
 
 
 
-tr.secondary td {
+tr.secondary td,
+tr.tertiary.subs td {
     background-image: radial-gradient(black -100%, royalblue 500%);
 }
 
@@ -124,7 +157,8 @@ tr.secondary.lineup td {
 }
 
 tr.main.active td,
-tr.secondary.active td {
+tr.secondary.active td,
+tr.tertiary.active td {
     background-image: radial-gradient(var(--color4) -100%, var(--color2) 250%);
 
 
@@ -174,30 +208,38 @@ tr.secondary.active {
 }
 
 
-table.secondary.subs,
-table.secondary.lineup {
-    position: sticky;
-    top: 7rem;
-}
-
-
-
-table.tertiary.subs,
-table.tertiary.subs th,
-table.tertiary.subs td,
-table.tertiary.subs thead {
+table.tertiary.subs thead,
+table.tertiary.subs th {
+    z-index: 3;
     position: sticky;
     top: 28rem;
 }
 
-table.tertiary.subs thead {
-    z-index: 4;
+table.secondary.subs th,
+table.secondary.subs th {
+    z-index: 3;
+    position: sticky;
+    top: 14rem;
+}
+
+table.secondary.subs td,
+table.secondary.lineup td {
+    z-index: 2;
+    position: sticky;
+    top: 14rem;
+}
+
+table.tertiary.subs td {
+    z-index: 2;
+    position: sticky;
+    top: 28rem;
 }
 
 
 table.secondary.subs,
 table.secondary.lineup,
-table.tertiary.subs {
+table.tertiary.subs,
+table.tertiary.lineup {
     display: inline-table;
     width: 50%;
     vertical-align: top;
@@ -213,7 +255,9 @@ table.tertiary.subs tr {
 table.secondary.lineup {}
 
 div.secondary.nav,
-div.secondary.nav>div {
+div.secondary.nav>div,
+div.tertiary.nav,
+div.tertiary.nav>div {
     width: 100%;
     height: 7rem;
     display: flex;
@@ -223,7 +267,8 @@ div.secondary.nav>div {
 }
 
 
-div.secondary.nav>div {
+div.secondary.nav>div,
+div.tertiary.nav>div {
     width: 50%;
     background-color: var(--color4);
 
@@ -267,36 +312,9 @@ table.trade_summary {
     box-shadow: 0 0 5rem var(--color2);
 }
 
-table#trades tr.trade_summary.click:first-of-type>td {
-    position: sticky;
-    top: 7rem;
-    height: 7rem;
-    box-sizing: border-box;
-    z-index: 7;
-}
 
-table#trades tr.trade_summary.click>td {
-    position: sticky;
-    top: 14rem;
-    height: 7rem;
-    box-sizing: border-box;
-    z-index: 4;
-    filter: drop-shadow(0 0 1.5rem var(--color2))
-}
 
-table#trades tr.main2.active>td {
-    position: sticky;
-    top: 14rem;
-    z-index: 5;
-}
 
-table#trades>tbody {
-    filter: drop-shadow(0 0 1rem var(--color2));
-}
-
-table#trades tbody table.main_body>tbody>tr.main td {
-    filter: drop-shadow(0 0 1.5rem var(--color4));
-}
 
 
 

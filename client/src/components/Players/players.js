@@ -27,7 +27,7 @@ const Players = ({
     const [stateDynastyRankings, setStateDynastyRankings] = useState([])
     const [stateStats, setStateStats] = useState({})
 
-    console.log(stateDynastyRankings)
+
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -189,12 +189,7 @@ const Players = ({
             }
 
             const trend_games = stateStats?.[player.id]
-                ?.filter(s =>
-                    new Date(s.date).getTime() < new Date(trendDateEnd).getTime()
-                    && new Date(s.date).getTime() > new Date(trendDateStart).getTime()
-                    && s.stats.pts_ppr
-                    && s.stats.tm_off_snp > 0 && ((s.stats.snp || s.stats.off_snp || 0) / (s.stats.tm_off_snp) > snapPercentage)
-                )
+                ?.filter(s => s.stats.tm_off_snp > 0 && ((s.stats.snp || s.stats.off_snp || 0) / (s.stats.tm_off_snp) > snapPercentage))
 
 
             return {
@@ -253,7 +248,8 @@ const Players = ({
                         leagues_owned={player.leagues_owned}
                         leagues_taken={player.leagues_taken}
                         leagues_available={player.leagues_available}
-                        trend_games={trend_games}
+                        stateStats={stateStats}
+                        snapPercentage={snapPercentage}
                         player_id={player.id}
                         stateAllPlayers={stateAllPlayers}
                     />

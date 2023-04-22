@@ -2,7 +2,7 @@ import TableMain from "../Home/tableMain";
 import { useState } from "react";
 import LeagueInfo from "../Leagues/leagueInfo";
 
-const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, trend_games, player_id, stateAllPlayers }) => {
+const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, stateStats, player_id, snapPercentage, stateAllPlayers }) => {
     const [tab, setTab] = useState('Owned');
     const [page, setPage] = useState(1)
     const [itemActive, setItemActive] = useState('');
@@ -53,6 +53,8 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, trend_
         )
     }
 
+    const trend_games = stateStats?.[player_id]
+        ?.filter(s => s.stats.tm_off_snp > 0 && ((s.stats.snp || s.stats.off_snp || 0) / (s.stats.tm_off_snp) > snapPercentage))
 
     const leagues_display = tab === 'Owned' ? leagues_owned :
         tab === 'Taken' ? leagues_taken :
@@ -104,6 +106,9 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, trend_
                     stateAllPlayers={stateAllPlayers}
                     scoring_settings={lo.scoring_settings}
                     league={lo}
+                    stateStats={stateStats}
+                    getPlayerScore={getPlayerScore}
+                    snapPercentage={snapPercentage}
                     type='tertiary'
                 />
             )
