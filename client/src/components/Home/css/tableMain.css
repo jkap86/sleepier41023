@@ -11,7 +11,7 @@ tr.main_wrapper.active table.main_body {
 }
 
 tr.main.click.active tr.trade_summary_wrapper:first-of-type,
-tr.main.click.active {
+tr.main.click.active>td {
     position: sticky;
     top: var(--sticky2);
     z-index: 6;
