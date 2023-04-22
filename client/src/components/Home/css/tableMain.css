@@ -237,7 +237,11 @@ table.tertiary.subs td {
     top: 28rem;
 }
 
-
+tr.tertiary.subs.click.active {
+    position: sticky;
+    top: 35rem;
+    z-index: 2;
+}
 
 
 table.secondary.subs,
