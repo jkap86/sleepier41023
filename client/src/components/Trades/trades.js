@@ -39,7 +39,7 @@ const Trades = ({
     let tradesDisplay;
     let tradeCount;
 
-    console.log(stateDynastyRankings)
+
     useEffect(() => {
         const players = Array.from(new Set(tradesDisplay.map(trade => Object.keys(trade.adds)).flat()))
         const dates = tradesDisplay.map(trade => trade.status_updated)
@@ -217,7 +217,7 @@ const Trades = ({
             break;
     }
 
-    const eastern_time = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))
+    const eastern_time = new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
 
 
     const trades_body = tradesDisplay
