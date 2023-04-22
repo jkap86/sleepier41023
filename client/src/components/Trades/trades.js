@@ -86,26 +86,14 @@ const Trades = ({
     useEffect(() => {
         let trades = tradesDisplay
         const players = Array.from(new Set(trades.map(trade => Object.keys(trade.adds)).flat()))
-        const dates = trades.slice((page - 1) * 25, ((page - 1) * 25) + 25).map(trade => trade.status_updated)
+        const dates = trades.slice((page - 1) * 25, ((page - 1) * 25) + 25).map(trade => new Date(parseInt(trade.status_updated) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0])
 
-        const start = Math.min(...dates)
-        const end = Math.max(...dates)
-
-        if (dates.length > 0) {
-            console.log({
-                start: new Date(start).toISOString().split('T')[0],
-                end: new Date(end).toISOString().split('T')[0],
-                dates: dates
-            })
-        }
 
 
         const fetchStats = async () => {
             const rankings = await axios.post('/dynastyrankings/findrange', {
                 players: players,
-                date1: new Date(start).toISOString().split('T')[0],
-                date2: new Date(end).toISOString().split('T')[0],
-                current: new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
+                dates: [...dates, new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]]
             })
 
             setStateDynastyRankings(rankings.data)
@@ -113,7 +101,7 @@ const Trades = ({
         }
 
 
-        if (dates.length > 0 && (!stateDynastyRankings.find(d => d.date === new Date(new Date(start) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]) || !stateDynastyRankings.find(d => d.date === new Date(new Date(end) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]))) {
+        if (trades) {
 
             fetchStats()
         }
