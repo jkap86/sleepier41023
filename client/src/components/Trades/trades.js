@@ -34,35 +34,91 @@ const Trades = ({
     const [pricecheck_player2, setPricecheck_player2] = useState('')
     const [stateDynastyRankings, setStateDynastyRankings] = useState([])
     const [filterType, setFilterType] = useState('Player')
+    const [tradesDisplay, setTradesDisplay] = useState([])
+    const [tradeCount, setTradeCount] = useState(0)
 
-
-    let tradesDisplay;
-    let tradeCount;
+    console.log(stateDynastyRankings)
 
 
     useEffect(() => {
-        const players = Array.from(new Set(tradesDisplay.map(trade => Object.keys(trade.adds)).flat()))
-        const dates = tradesDisplay.map(trade => trade.status_updated)
+        switch (tab) {
+            case 'Leaguemate Trades':
+
+                if (searched_player === '' && searched_league === '' && searched_manager === '') {
+                    setTradesDisplay(stateLmTrades.trades || [])
+                    setTradeCount(stateLmTrades.count)
+                } else {
+                    let search_trades = stateLmTrades.searches?.find(s => s.player === searched_player.id && s.manager === searched_manager.id)
+
+                    setTradesDisplay(search_trades?.trades || [])
+                    setTradeCount(search_trades?.count)
+                    /*
+                                    tradesDisplay = stateLmTrades.searches?.player?.find(s => s.id === searched_player.id)?.results
+                                        ?.filter(trade => searched_manager === '' || trade.managers.includes(searched_manager.id))
+                                        ||
+                                        stateLmTrades.searches?.manager?.find(s => s.id === searched_manager.id)?.results
+                                            ?.filter(trade => searched_player === '' || Object.keys(trade.adds).includes(searched_player.id))
+                                        ||
+                                        []
+                    
+                                    tradeCount = tradesDisplay?.length
+                    */
+                }
+                break;
+            case 'Price Check':
+                const pcTrades = statePriceCheckTrades.find(pcTrade => pcTrade.player === pricecheck_player.id && pcTrade.player2 === pricecheck_player2.id)
+
+                setTradesDisplay(pcTrades?.trades || [])
+                setTradeCount(pcTrades?.count)
+
+                break;
+            default:
+                break;
+        }
+
+
+    }, [tab, stateLmTrades, statePriceCheckTrades, searched_player, searched_manager, searched_league, pricecheck_player, pricecheck_player2])
+
+    useEffect(() => {
+        setPage(1)
+    }, [tradeCount])
+
+    useEffect(() => {
+        let trades = tradesDisplay
+        const players = Array.from(new Set(trades.map(trade => Object.keys(trade.adds)).flat()))
+        const dates = trades.slice((page - 1) * 25, ((page - 1) * 25) + 25).map(trade => trade.status_updated)
 
         const start = Math.min(...dates)
         const end = Math.max(...dates)
+
+        if (dates.length > 0) {
+            console.log({
+                start: new Date(start).toISOString().split('T')[0],
+                end: new Date(end).toISOString().split('T')[0],
+                dates: dates
+            })
+        }
+
+
         const fetchStats = async () => {
-            const rankings = await axios.post('/dynastyrankings/find', {
+            const rankings = await axios.post('/dynastyrankings/findrange', {
                 players: players,
-                date1: start,
-                date2: end
+                date1: new Date(start).toISOString().split('T')[0],
+                date2: new Date(end).toISOString().split('T')[0],
+                current: new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
             })
 
             setStateDynastyRankings(rankings.data)
 
-
-
         }
-        if (tradesDisplay) {
+
+
+        if (dates.length > 0 && (!stateDynastyRankings.find(d => d.date === new Date(new Date(start) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]) || !stateDynastyRankings.find(d => d.date === new Date(new Date(end) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]))) {
+
             fetchStats()
         }
 
-    }, [tradesDisplay])
+    }, [tradesDisplay, page])
 
     useEffect(() => {
         setStateLmTrades({ ...stateLmTrades })
@@ -76,7 +132,7 @@ const Trades = ({
 
     useEffect(() => {
         setPage(1)
-    }, [searched_player, searched_league, searched_manager, pricecheck_player, pricecheck_player2, tab])
+    }, [searched_player, searched_league, searched_manager, pricecheck_player, pricecheck_player2])
 
     useEffect(() => {
         const fetchFilteredTrades = async () => {
@@ -164,58 +220,7 @@ const Trades = ({
     ]
 
 
-    switch (tab) {
-        case 'Leaguemate Trades':
 
-            if (searched_player === '' && searched_league === '' && searched_manager === '') {
-                tradesDisplay = stateLmTrades.trades || []
-                tradeCount = stateLmTrades.count
-            } else {
-                let search_trades = stateLmTrades.searches?.find(s => s.player === searched_player.id && s.manager === searched_manager.id)
-
-                tradesDisplay = search_trades?.trades || []
-                tradeCount = search_trades?.count
-                /*
-                                tradesDisplay = stateLmTrades.searches?.player?.find(s => s.id === searched_player.id)?.results
-                                    ?.filter(trade => searched_manager === '' || trade.managers.includes(searched_manager.id))
-                                    ||
-                                    stateLmTrades.searches?.manager?.find(s => s.id === searched_manager.id)?.results
-                                        ?.filter(trade => searched_player === '' || Object.keys(trade.adds).includes(searched_player.id))
-                                    ||
-                                    []
-                
-                                tradeCount = tradesDisplay?.length
-                */
-            }
-            break;
-        case 'Leaguemate Leagues Trades':
-            if (searched_player === '' && searched_league === '' && searched_manager === '') {
-                tradesDisplay = stateLmLeaguesTrades.trades || []
-                tradeCount = stateLmLeaguesTrades.count
-            } else {
-                if (filterType === 'Player') {
-                    const searches = stateLmLeaguesTrades.searches?.player
-                    tradesDisplay = (searches?.find(s => s.id === searched_player.id)?.results || [])
-                        .filter(trade => searched_manager === '' || trade.managers.includes(searched_manager.id))
-                    tradeCount = tradesDisplay?.length
-                } else if (filterType === 'Manager') {
-                    const searches = stateLmLeaguesTrades.searches?.manager
-                    tradesDisplay = (searches?.find(s => s.id === searched_manager.id)?.results || [])
-                        .filter(trade => searched_player === '' || Object.keys(trade.adds).includes(searched_player.id))
-                    tradeCount = tradesDisplay?.length
-                }
-            }
-            break;
-        case 'Price Check':
-            const pcTrades = statePriceCheckTrades.find(pcTrade => pcTrade.player === pricecheck_player.id && pcTrade.player2 === pricecheck_player2.id)
-
-            tradesDisplay = pcTrades?.trades || []
-            tradeCount = pcTrades?.count
-
-            break;
-        default:
-            break;
-    }
 
     const eastern_time = new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
 
@@ -262,7 +267,7 @@ const Trades = ({
 
 
                                         const trans_values = stateDynastyRankings
-                                            .find(x => x.date === new Date(parseInt(trade.status_updated) - new Date(parseInt(trade.status_updated)).getTimezoneOffset() * 60000).toISOString().split('T')[0])?.values
+                                            .find(x => x.date === new Date(parseInt(trade.status_updated) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0])?.values
 
 
                                         const superflex = trade['league.roster_positions'].filter(p => p === 'QB' || p === 'SUPER_FLEX').length > 1 ? true : false

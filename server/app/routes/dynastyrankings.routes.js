@@ -9,6 +9,8 @@ module.exports = app => {
 
     router.post("/find", dynastyrankings.find)
 
+    router.post("/findrange", dynastyrankings.findrange)
+
     //  router.post('/adddate', dynastyrankings.addDate)
 
     app.use('/dynastyrankings', router);

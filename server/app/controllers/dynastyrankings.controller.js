@@ -37,6 +37,35 @@ exports.find = async (req, res) => {
     res.send(values)
 }
 
+exports.findrange = async (req, res) => {
+    const values = await DynastyRankings.findAll({
+        where: {
+            [Op.or]: [
+                {
+                    [Op.and]: [
+                        {
+                            date: {
+                                [Op.gte]: req.body.date1
+                            }
+                        },
+                        {
+                            date: {
+                                [Op.lte]: req.body.date2
+                            }
+                        }
+                    ]
+                },
+                {
+                    date: req.body.current
+                }
+            ]
+        },
+
+    })
+
+    res.send(values)
+}
+
 exports.stats = async (req, res) => {
     const stats = require('../../stats.json')
 
