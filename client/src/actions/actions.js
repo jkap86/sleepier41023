@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getLeagueData } from '../components/Functions/getLeagueData';
 import { getTradeTips } from '../components/Functions/getTradeTips';
+import { filterData } from '../components/Functions/filterData';
 
 export const fetchUser = (username) => {
     return async (dispatch) => {
@@ -116,4 +117,84 @@ export const fetchFilteredLmTrades = (searchedPlayerId, searchedManagerId, leagu
 
     console.log('Done fetching filtered trades...')
 };
+
+export const fetchFilteredData = (type1, type2, leagues, leaguemates, playerShares) => async (dispatch) => {
+    dispatch({ type: 'FETCH_FILTERED_DATA_START' });
+
+    try {
+        const filteredData = filterData(type1, type2, leagues, leaguemates, playerShares);
+
+        console.log(filteredData)
+        dispatch({
+            type: 'FETCH_FILTERED_DATA_SUCCESS',
+            payload: {
+                leagues: filteredData.leagues,
+                playershares: filteredData.playershares,
+                leaguemates: filteredData.leaguemates
+            }
+        });
+    } catch (error) {
+        dispatch({ type: 'FETCH_FILTERED_DATA_FAILURE', payload: error.message });
+    }
+};
+
+export const fetchStats = (trendDateStart, trendDateEnd, players) => async (dispatch) => {
+    dispatch({ type: 'FETCH_STATS_START' })
+    console.log('getting stats')
+    try {
+        const stats = await axios.post('/dynastyrankings/stats', {
+            players: players,
+            date1: trendDateStart,
+            date2: trendDateEnd
+        });
+
+        console.log(stats.data)
+
+        dispatch({ type: 'FETCH_STATS_SUCCESS', payload: stats.data })
+    } catch (error) {
+        dispatch({ type: 'FETCH_STATS_FAILURE', payload: error.message })
+    }
+};
+
+export const fetchValues = (trendDateStart, trendDateEnd) => async (dispatch, getState) => {
+    dispatch({ type: 'FETCH_DYNASTY_VALUES_START' })
+
+    try {
+        const dynastyValues = await axios.post('/dynastyrankings/find', {
+
+            date1: trendDateStart,
+            date2: trendDateEnd
+        });
+
+        dispatch({ type: 'FETCH_DYNASTY_VALUES_SUCCESS', payload: dynastyValues.data })
+    } catch (error) {
+        dispatch({ type: 'FETCH_DYNASTY_VALUES_FAILURE', payload: error.message })
+    }
+};
+
+export const setType1 = (type1) => ({
+    type: 'SET_TYPE1',
+    payload: type1,
+});
+
+export const setType2 = (type2) => ({
+    type: 'SET_TYPE2',
+    payload: type2,
+});
+
+export const setTab = (tab) => ({
+    type: 'SET_TAB',
+    payload: tab
+})
+
+export const setTrendDateStart = (date) => ({
+    type: 'SET_TRENDDATESTART',
+    payload: date
+});
+
+export const setTrendDateEnd = (date) => ({
+    type: 'SET_TRENDDATEEND',
+    payload: date
+})
+
 

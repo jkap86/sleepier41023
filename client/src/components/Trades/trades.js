@@ -31,9 +31,9 @@ const Trades = ({
     const [tradesDisplay, setTradesDisplay] = useState([])
     const [tradeCount, setTradeCount] = useState(0)
     const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
-    const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
+    const { state: stateState, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
     const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
-    const { isLoading, searches, error } = useSelector(state => state.filteredLmTrades);
+    const { isLoading: isLoadingFilteredLmTrades, searches, error } = useSelector(state => state.filteredLmTrades);
 
     console.log(searches)
     useEffect(() => {
@@ -154,7 +154,7 @@ const Trades = ({
         }
         */
         if (searched_player !== '' || searched_manager !== '') {
-            dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, state.league_season))
+            dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, stateState.league_season))
         }
     }, [searched_player, searched_manager])
 
@@ -179,7 +179,7 @@ const Trades = ({
                     {
                         player: pricecheck_player.id,
                         player2: pricecheck_player2.id,
-                        trades: getTradeTips(player_trades.data.rows, leagues, leaguematesDict, state.league_season),
+                        trades: getTradeTips(player_trades.data.rows, leagues, leaguematesDict, stateState.league_season),
                         count: player_trades.data.count
                     }
                 ])
@@ -364,7 +364,7 @@ const Trades = ({
                                                                                     )?.manager?.user_id === rid ? 'red left' : 'left'}`}
                                                                             >
                                                                                 {
-                                                                                    <p><span>{`+ ${pick.season} Round ${pick.round}${pick.order && pick.season === state.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`}</span></p>
+                                                                                    <p><span>{`+ ${pick.season} Round ${pick.round}${pick.order && pick.season === stateState.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`}</span></p>
                                                                                 }
                                                                             </td>
                                                                             <td className='value'>
@@ -431,7 +431,7 @@ const Trades = ({
                                                                                 <p>
                                                                                     <span className="end">
                                                                                         {
-                                                                                            (`- ${pick.season} Round ${pick.round}${pick.order && pick.season === state.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`).toString()
+                                                                                            (`- ${pick.season} Round ${pick.round}${pick.order && pick.season === stateState.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`).toString()
                                                                                         }
                                                                                     </span>
                                                                                 </p>
@@ -450,7 +450,7 @@ const Trades = ({
                                                 <TradeInfo
                                                     trade={trade}
                                                     allPlayers={allPlayers}
-                                                    state={state}
+                                                    state={stateState}
                                                     user={user}
                                                     stateDynastyRankings={stateDynastyRankings}
                                                 />
@@ -470,7 +470,7 @@ const Trades = ({
                     <TradeInfo
                         trade={trade}
                         allPlayers={allPlayers}
-                        state={state}
+                        state={stateState}
                         user={user}
                     />
                 )
@@ -513,8 +513,8 @@ const Trades = ({
         return Array.from(Array(5).keys()).map(round => {
             if (season !== 0) {
                 return picks_list.push({
-                    id: `${season + parseInt(state.league_season)} ${round + 1}.${null}`,
-                    text: `${season + parseInt(state.league_season)}  Round ${round + 1}`,
+                    id: `${season + parseInt(stateState.league_season)} ${round + 1}.${null}`,
+                    text: `${season + parseInt(stateState.league_season)}  Round ${round + 1}`,
                     image: {
                         src: null,
                         alt: 'pick headshot',
@@ -524,8 +524,8 @@ const Trades = ({
             } else {
                 return Array.from(Array(12).keys()).map(order => {
                     return picks_list.push({
-                        id: `${season + parseInt(state.league_season)} ${round + 1}.${season === 0 ? (order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`,
-                        text: `${season + parseInt(state.league_season)} ${season === 0 ? `${round + 1}.${(order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` Round ${round + 1}`}`,
+                        id: `${season + parseInt(stateState.league_season)} ${round + 1}.${season === 0 ? (order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`,
+                        text: `${season + parseInt(stateState.league_season)} ${season === 0 ? `${round + 1}.${(order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` Round ${round + 1}`}`,
                         image: {
                             src: null,
                             alt: 'pick headshot',
@@ -561,7 +561,7 @@ const Trades = ({
         .filter(draft_pick =>
             tradesDisplay?.find(trade =>
                 trade.draft_picks.find(pick =>
-                    draft_pick.id === `${pick.season} ${pick.round}.${pick.season === state.league_season && pick.order ? (pick.order).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`
+                    draft_pick.id === `${pick.season} ${pick.round}.${pick.season === stateState.league_season && pick.order ? (pick.order).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`
                 )
             )
         )
@@ -677,7 +677,7 @@ const Trades = ({
                 setPage(Math.ceil(lmTrades.trades.length / 25) + 1)
                 setlmTrades({
                     ...lmTrades,
-                    trades: [...lmTrades.trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, state.league_season)]
+                    trades: [...lmTrades.trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, stateState.league_season)]
                 })
             } else {
                 let trades = lmTrades.searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)?.trades || []
@@ -698,7 +698,7 @@ const Trades = ({
                         {
                             player: searched_player.id,
                             manager: searched_manager.id,
-                            trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, state.league_season)],
+                            trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, stateState.league_season)],
                             count: tradesMore.data.count
                         }
                     ]
@@ -719,7 +719,7 @@ const Trades = ({
                 {
                     player: pricecheck_player.id,
                     player2: pricecheck_player2.id,
-                    trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, state.league_season)],
+                    trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, stateState.league_season)],
                     count: tradesMore.data.count
                 }
             ])
@@ -730,7 +730,7 @@ const Trades = ({
     return <>
         <h2>
             {tradeCount?.toLocaleString("en-US")}
-            {` ${state.league_season} Trades`}
+            {` ${stateState.league_season} Trades`}
 
         </h2>
         <div className='navbar'>
@@ -753,7 +753,7 @@ const Trades = ({
             {searchBar}
         </div>
         {
-            isLoadingLmTrades ?
+            isLoadingLmTrades || isLoadingFilteredLmTrades ?
                 <div className='loading_wrapper'>
                     {loadingIcon}
                 </div>

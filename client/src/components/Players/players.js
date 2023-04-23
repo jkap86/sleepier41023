@@ -8,66 +8,44 @@ import '../Home/css/modal.css';
 import { getLocalDate } from '../Functions/dates';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
+import { setTrendDateStart, setTrendDateEnd, fetchStats, fetchValues } from "../../actions/actions";
 
 const Players = ({
     statePlayerShares,
     leagues_count
 }) => {
+    const dispatch = useDispatch();
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
     const [filterTeam, setFilterTeam] = useState('All')
-    const [trendDateStart, setTrendDateStart] = useState()
-    const [trendDateEnd, setTrendDateEnd] = useState()
     const [valueType, setValueType] = useState('SF')
     const [optionsVisible, setOptionsVisible] = useState(false)
     const [snapPercentage, setSnapPercentage] = useState(0)
-    const [stateDynastyRankings, setStateDynastyRankings] = useState([])
-    const [stateStats, setStateStats] = useState({})
+
     const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
     const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
     const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
+    const { leaguesFiltered, playersharesFiltered, leaguematesFiltered } = useSelector(state => state.filteredData);
+    const { tab, trendDateStart, trendDateEnd } = useSelector(state => state.tab);
+    const { isLoading: isLoadingStats, stats, error: errorStats } = useSelector(state => state.stats)
+    const { isLoading: isLoadingDynastyValues, dynastyValues, error: errorDynstyValues } = useSelector(state => state.dynastyValues)
 
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            const [stats, rankings] = await Promise.all([
-                await axios.post('/dynastyrankings/stats', {
-                    players: statePlayerShares.map(player => player.id),
-                    date1: trendDateStart,
-                    date2: trendDateEnd
-                }),
-                await axios.post('/dynastyrankings/find', {
-                    players: statePlayerShares.map(player => player.id),
-                    date1: trendDateStart,
-                    date2: trendDateEnd
-                })
-            ])
-
-            setStateDynastyRankings(rankings.data)
-
-            setStateStats(stats.data)
-
-        }
-        if (statePlayerShares.length > 0 && trendDateStart && trendDateEnd) {
-            fetchStats()
-        }
-    }, [statePlayerShares, trendDateStart, trendDateEnd])
+    console.log(dynastyValues)
 
     useEffect(() => {
-        const today_eastern = new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
+
+        if (trendDateStart && trendDateEnd && playersharesFiltered.length > 0) {
+
+            dispatch(fetchStats(trendDateStart, trendDateEnd, playersharesFiltered.map(player => player.id)))
+
+            dispatch(fetchValues(trendDateStart, trendDateEnd))
+
+        }
+    }, [trendDateStart, trendDateEnd, playersharesFiltered])
 
 
-        const thirty_days = new Date(new Date() - 30 * 24 * 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
-
-        console.log(thirty_days)
-
-
-        setTrendDateStart(thirty_days)
-        setTrendDateEnd(today_eastern)
-
-    }, [])
     const playerShares_headers = [
         [
             {
@@ -138,8 +116,7 @@ const Players = ({
         ]
     ]
 
-
-    const playerShares_body = statePlayerShares
+    const playerShares_body = playersharesFiltered
         .filter(x =>
             (
                 x.id.includes('_') || allPlayers[x.id])
@@ -165,31 +142,31 @@ const Players = ({
                 ktc_name = `${pick_split[0]} ${parseInt(pick_split[2]) <= 4 ? 'Early' : parseInt(pick_split[2]) >= 9 ? 'Late' : 'Mid'} ${pick_split[1]}`
 
 
-                cur_value = stateDynastyRankings
+                cur_value = dynastyValues
                     ?.find(dr => getLocalDate(dr.date) === getLocalDate(trendDateEnd))
                     ?.values[ktc_name]
                     ?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
-                prev_value = stateDynastyRankings
+                prev_value = dynastyValues
                     ?.find(dr => getLocalDate(dr.date) === getLocalDate(trendDateStart))
                     ?.values[ktc_name]
                     ?.[valueType === 'SF' ? 'sf' : 'oneqb']
             } else {
 
 
-                cur_value = stateDynastyRankings
+                cur_value = dynastyValues
                     ?.find(dr => dr.date.toString() === trendDateEnd.toString())
                     ?.values[player.id]
                     ?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
-                prev_value = stateDynastyRankings
+                prev_value = dynastyValues
                     ?.find(dr => dr.date.toString() === trendDateStart.toString())
                     ?.values[player.id]
                     ?.[valueType === 'SF' ? 'sf' : 'oneqb']
 
             }
 
-            const trend_games = stateStats?.[player.id]
+            const trend_games = stats?.[player.id]
                 ?.filter(s => s.stats.tm_off_snp > 0 && ((s.stats.snp || s.stats.off_snp || 0) / (s.stats.tm_off_snp) > snapPercentage))
 
 
@@ -221,7 +198,7 @@ const Players = ({
                         className: 'green'
                     },
                     {
-                        text: ((player.leagues_owned.length / leagues_count) * 100).toFixed(1) + '%',
+                        text: ((player.leagues_owned.length / leaguesFiltered?.length) * 100).toFixed(1) + '%',
                         colSpan: 1,
                         className: 'green'
                     },
@@ -249,7 +226,7 @@ const Players = ({
                         leagues_owned={player.leagues_owned}
                         leagues_taken={player.leagues_taken}
                         leagues_available={player.leagues_available}
-                        stateStats={stateStats}
+                        stateStats={stats}
                         snapPercentage={snapPercentage}
                         player_id={player.id}
                         allPlayers={allPlayers}
@@ -288,12 +265,12 @@ const Players = ({
                             </div>
                             <div className="modal-grid-content one">
 
-                                <input type={'date'} defaultValue={trendDateStart} onBlur={(e) => e.target.value && setTrendDateStart(new Date(e.target.value).toISOString().split('T')[0])} />
+                                <input type={'date'} defaultValue={trendDateStart} onBlur={(e) => e.target.value && dispatch(setTrendDateStart(new Date(e.target.value).toISOString().split('T')[0]))} />
 
                             </div>
                             <div className="modal-grid-content three">
 
-                                <input type={'date'} defaultValue={trendDateEnd} onBlur={(e) => e.target.value && setTrendDateEnd(new Date(e.target.value).toISOString().split('T')[0])} />
+                                <input type={'date'} defaultValue={trendDateEnd} onBlur={(e) => e.target.value && dispatch(setTrendDateEnd(new Date(e.target.value).toISOString().split('T')[0]))} />
 
                             </div>
                         </div>

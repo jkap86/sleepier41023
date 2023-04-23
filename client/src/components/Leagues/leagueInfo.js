@@ -2,10 +2,9 @@ import { useState } from "react";
 import TableMain from "../Home/tableMain";
 import { days, default_scoring_settings, scoring_settings_display } from '../Functions/misc';
 import { Link } from "react-router-dom";
-
+import { useSelector } from 'react-redux';
 
 const LeagueInfo = ({
-    stateAllPlayers,
     league,
     scoring_settings,
     stateStats,
@@ -13,6 +12,7 @@ const LeagueInfo = ({
     snapPercentage,
     type
 }) => {
+    const { state: stateState, allPlayers: stateAllPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
     const [itemActive, setItemActive] = useState('');
     const [secondaryContent, setSecondaryContent] = useState('Lineup')
 

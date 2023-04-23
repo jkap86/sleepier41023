@@ -8,11 +8,10 @@ import { fetchLeagues, fetchLmTrades, fetchUser } from '../../actions/actions';
 
 const Main = () => {
     const params = useParams();
-    const [statePriceCheckTrades, setStatePriceCheckTrades] = useState([])
     const dispatch = useDispatch();
     const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
-    const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
-    const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
+    const { state, leagues, leaguematesDict, isLoading: isLoadingLeagues } = useSelector(state => state.leagues)
+    const { lmTrades } = useSelector(state => state.lmTrades);
 
     useEffect(() => {
         dispatch(fetchUser(params.username));
@@ -93,30 +92,6 @@ const Main = () => {
     }, [user, leaguematesDict])
 
 
-
-
-
-    const syncLeague = async (league_id) => {
-        /*
-        const leagues = leagues
-        const syncdMatchup = await axios.post('/league/sync', {
-            league_id: league_id
-        })
-        const leaguesSynced = leagues.map(league => {
-            if (league.league_id === league_id) {
-                league = {
-                    ...league,
-                    [`matchups_${state.display_week}`]: syncdMatchup.data
-                }
-            }
-            return league
-        })
-        setStateLeagues([...leaguesSynced])
-        */
-    }
-
-    console.log(isLoadingLeagues)
-
     return <>
         {
             (isLoadingUser || isLoadingLeagues || !user) ?
@@ -125,17 +100,7 @@ const Main = () => {
                 : errorUser ? <h1>{errorUser}</h1>
                     : <React.Suspense fallback={loadingIcon}>
 
-                        <View
-
-                            setStateLmTrades={console.log}
-
-                            statePriceCheckTrades={statePriceCheckTrades}
-                            setStatePriceCheckTrades={setStatePriceCheckTrades}
-
-                            syncLeague={syncLeague}
-
-
-                        />
+                        <View />
                     </React.Suspense>
 
         }

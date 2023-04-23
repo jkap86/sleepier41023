@@ -1,8 +1,8 @@
-export const filterData = (leagues, filter1, filter2, leaguemates, playershares) => {
+export const filterData = (filter1, filter2, leagues, leaguemates, playershares) => {
     let filteredLeagues;
     let filteredLeaguemates;
     let filteredPlayerShares;
-
+    console.log(leagues)
     switch (filter1) {
         case ('Redraft'):
             filteredLeagues = leagues.filter(x => x.settings.type !== 2);
