@@ -158,7 +158,7 @@ ol.dropdown>li>button>p {
     white-space: nowrap;
 }
 
-ol.dropdown>li>button>p {
+div#homepage ol.dropdown>li>button>p {
     display: flex;
     align-items: center;
     position: relative;
