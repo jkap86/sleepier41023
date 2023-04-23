@@ -110,6 +110,7 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, stateS
                     getPlayerScore={getPlayerScore}
                     snapPercentage={snapPercentage}
                     type='tertiary'
+
                 />
             )
         }
@@ -141,9 +142,10 @@ const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, stateS
             type={'secondary'}
             headers={player_leagues_headers}
             body={player_leagues_body}
-
             itemActive={itemActive}
             setItemActive={setItemActive}
+            page={page}
+            setPage={setPage}
         />
     </>
 }

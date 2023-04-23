@@ -84,7 +84,7 @@ const LeagueInfo = ({
                 className: 'half'
             },
             {
-                text: 'Age',
+                text: stateStats ? 'PPG' : 'Age',
                 colSpan: 5,
                 rowSpan: 2,
                 className: 'half'
