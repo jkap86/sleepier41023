@@ -62,6 +62,10 @@ ol.dropdown {
     background-color: var(--color3);
 }
 
+ol.dropdown>li>button {
+    display: flex;
+}
+
 ol.dropdown>li>button,
 ol.dropdown>li>button p {
     width: 100%;

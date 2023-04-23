@@ -1,6 +1,10 @@
 'use strict'
 const db = require("../models");
+const Sequelize = db.Sequelize;
+const sequelize = db.sequelize;
 const User = db.users;
+const Op = db.Sequelize.Op
+const League = db.leagues;
 const https = require('https');
 const axios = require('axios').create({
     headers: {
@@ -32,3 +36,34 @@ exports.create = async (req, res) => {
         res.send({ error: 'User not found' })
     }
 }
+
+exports.findMostLeagues = async (req, res) => {
+
+    try {
+
+
+        const users = await User.findAll({
+            attributes: [
+                'username',
+                'avatar',
+                [Sequelize.fn('COUNT', Sequelize.col('leagues.league_id')), 'leaguesCount']
+            ],
+            include: [{
+                model: League,
+                attributes: [],
+                through: {
+                    attributes: []
+                },
+                required: true
+            }],
+            order: [['leaguesCount', 'DESC']],
+            group: ['user.user_id']
+        })
+
+
+        res.send(users.slice(0, 100))
+    } catch (err) {
+        console.log(err)
+    }
+
+} 

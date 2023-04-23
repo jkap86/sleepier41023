@@ -12,5 +12,7 @@ module.exports = app => {
 
     router.post("/create", users.create)
 
+    router.post("/findmostleagues", users.findMostLeagues)
+
     app.use('/user', router);
 }
