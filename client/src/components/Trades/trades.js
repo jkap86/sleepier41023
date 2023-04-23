@@ -7,22 +7,16 @@ import { loadingIcon } from '../Functions/misc';
 import TradeInfo from './tradeInfo';
 import Search from '../Home/search';
 import { avatar } from '../Functions/misc';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchFilteredLmTrades } from '../../actions/actions';
 
 const Trades = ({
-    stateAllPlayers,
-    stateState,
-    state_user,
-    stateLmTrades,
-    setStateLmTrades,
-    stateLmLeaguesTrades,
+
+    setlmTrades,
     statePriceCheckTrades,
-    setStatePriceCheckTrades,
-    stateLeaguematesDict,
-    stateLeagues,
-    isLoadingTrades,
-    setIsLoadingTrades
+    setStatePriceCheckTrades
 }) => {
-    const params = useParams();
+    const dispatch = useDispatch();
 
     const [tab, setTab] = useState('Leaguemate Trades');
     const [page, setPage] = useState(1);
@@ -36,27 +30,29 @@ const Trades = ({
     const [filterType, setFilterType] = useState('Player')
     const [tradesDisplay, setTradesDisplay] = useState([])
     const [tradeCount, setTradeCount] = useState(0)
+    const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
+    const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
+    const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
+    const { isLoading, searches, error } = useSelector(state => state.filteredLmTrades);
 
-    console.log(stateDynastyRankings)
-
-
+    console.log(searches)
     useEffect(() => {
         switch (tab) {
             case 'Leaguemate Trades':
 
                 if (searched_player === '' && searched_league === '' && searched_manager === '') {
-                    setTradesDisplay(stateLmTrades.trades || [])
-                    setTradeCount(stateLmTrades.count)
+                    setTradesDisplay(lmTrades.trades || [])
+                    setTradeCount(lmTrades.count)
                 } else {
-                    let search_trades = stateLmTrades.searches?.find(s => s.player === searched_player.id && s.manager === searched_manager.id)
+                    let search_trades = searches?.find(s => s.player === searched_player.id && s.manager === searched_manager.id)
 
                     setTradesDisplay(search_trades?.trades || [])
                     setTradeCount(search_trades?.count)
                     /*
-                                    tradesDisplay = stateLmTrades.searches?.player?.find(s => s.id === searched_player.id)?.results
+                                    tradesDisplay = lmTrades.searches?.player?.find(s => s.id === searched_player.id)?.results
                                         ?.filter(trade => searched_manager === '' || trade.managers.includes(searched_manager.id))
                                         ||
-                                        stateLmTrades.searches?.manager?.find(s => s.id === searched_manager.id)?.results
+                                        lmTrades.searches?.manager?.find(s => s.id === searched_manager.id)?.results
                                             ?.filter(trade => searched_player === '' || Object.keys(trade.adds).includes(searched_player.id))
                                         ||
                                         []
@@ -77,7 +73,7 @@ const Trades = ({
         }
 
 
-    }, [tab, stateLmTrades, statePriceCheckTrades, searched_player, searched_manager, searched_league, pricecheck_player, pricecheck_player2])
+    }, [tab, lmTrades, searches, statePriceCheckTrades, searched_player, searched_manager, searched_league, pricecheck_player, pricecheck_player2])
 
     useEffect(() => {
         setPage(1)
@@ -108,9 +104,6 @@ const Trades = ({
 
     }, [tradesDisplay, page])
 
-    useEffect(() => {
-        setStateLmTrades({ ...stateLmTrades })
-    }, [isLoadingTrades])
 
     useEffect(() => {
         setSearched_Player('')
@@ -123,29 +116,30 @@ const Trades = ({
     }, [searched_player, searched_league, searched_manager, pricecheck_player, pricecheck_player2])
 
     useEffect(() => {
+        /*
         const fetchFilteredTrades = async () => {
-            setIsLoadingTrades(true)
+            setisLoadingLmTrades(true)
 
-            let searches = stateLmTrades.searches || []
+            let searches = lmTrades.searches || []
 
             if (!searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)) {
                 const trades = await axios.post('/trade/leaguemate', {
-                    user_id: state_user.user_id,
-                    leaguemates: Object.keys(stateLeaguematesDict),
+                    user_id: user.user_id,
+                    leaguemates: Object.keys(leaguematesDict),
                     player: searched_player.id,
                     manager: searched_manager.id,
                     offset: 0,
                     limit: 125
                 })
 
-                setStateLmTrades({
-                    ...stateLmTrades,
+                setlmTrades({
+                    ...lmTrades,
                     searches: [
                         ...searches,
                         {
                             player: searched_player.id,
                             manager: searched_manager.id,
-                            trades: getTradeTips(trades.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season),
+                            trades: getTradeTips(trades.data.rows, leagues, leaguematesDict, state.league_season),
                             count: trades.data.count
                         }
                     ]
@@ -153,10 +147,14 @@ const Trades = ({
             }
 
 
-            setIsLoadingTrades(false)
+            setisLoadingLmTrades(false)
         }
         if (searched_player !== '' || searched_manager !== '') {
             fetchFilteredTrades()
+        }
+        */
+        if (searched_player !== '' || searched_manager !== '') {
+            dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, state.league_season))
         }
     }, [searched_player, searched_manager])
 
@@ -166,7 +164,7 @@ const Trades = ({
             let pcTrades = statePriceCheckTrades
 
             if (!pcTrades.find(pcTrade => pcTrade.player === pricecheck_player.id && pcTrade.player2 === pricecheck_player2.id)) {
-                setIsLoadingTrades(true)
+
 
                 const player_trades = await axios.post('/trade/pricecheck', {
                     player: pricecheck_player.id,
@@ -181,12 +179,12 @@ const Trades = ({
                     {
                         player: pricecheck_player.id,
                         player2: pricecheck_player2.id,
-                        trades: getTradeTips(player_trades.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season),
+                        trades: getTradeTips(player_trades.data.rows, leagues, leaguematesDict, state.league_season),
                         count: player_trades.data.count
                     }
                 ])
 
-                setIsLoadingTrades(false)
+
             }
         }
         if (pricecheck_player !== '') {
@@ -336,7 +334,7 @@ const Trades = ({
                                                                         }
 
                                                                     >
-                                                                        <td colSpan={4} className='left'><p><span>+ {stateAllPlayers[player_id]?.full_name}</span></p></td>
+                                                                        <td colSpan={4} className='left'><p><span>+ {allPlayers[player_id]?.full_name}</span></p></td>
                                                                         <td className='value'>
                                                                             {trans_values?.[player_id]?.[superflex ? 'sf' : 'oneqb'] || '-'}
                                                                         </td>
@@ -366,7 +364,7 @@ const Trades = ({
                                                                                     )?.manager?.user_id === rid ? 'red left' : 'left'}`}
                                                                             >
                                                                                 {
-                                                                                    <p><span>{`+ ${pick.season} Round ${pick.round}${pick.order && pick.season === stateState.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`}</span></p>
+                                                                                    <p><span>{`+ ${pick.season} Round ${pick.round}${pick.order && pick.season === state.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`}</span></p>
                                                                                 }
                                                                             </td>
                                                                             <td className='value'>
@@ -408,7 +406,7 @@ const Trades = ({
                                                                             <p>
                                                                                 <span className='end'>
                                                                                     {
-                                                                                        (`- ${stateAllPlayers[player_id]?.full_name}`).toString()
+                                                                                        (`- ${allPlayers[player_id]?.full_name}`).toString()
                                                                                     }
                                                                                 </span>
                                                                             </p>
@@ -433,7 +431,7 @@ const Trades = ({
                                                                                 <p>
                                                                                     <span className="end">
                                                                                         {
-                                                                                            (`- ${pick.season} Round ${pick.round}${pick.order && pick.season === stateState.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`).toString()
+                                                                                            (`- ${pick.season} Round ${pick.round}${pick.order && pick.season === state.league_season ? `.${pick.order.toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` (${pick.original_user?.username || 'Orphan'})`}`).toString()
                                                                                         }
                                                                                     </span>
                                                                                 </p>
@@ -451,9 +449,9 @@ const Trades = ({
                                             secondary_table: (
                                                 <TradeInfo
                                                     trade={trade}
-                                                    stateAllPlayers={stateAllPlayers}
-                                                    stateState={stateState}
-                                                    state_user={state_user}
+                                                    allPlayers={allPlayers}
+                                                    state={state}
+                                                    user={user}
                                                     stateDynastyRankings={stateDynastyRankings}
                                                 />
                                             )
@@ -471,9 +469,9 @@ const Trades = ({
                 secondary_table: (
                     <TradeInfo
                         trade={trade}
-                        stateAllPlayers={stateAllPlayers}
-                        stateState={stateState}
-                        state_user={state_user}
+                        allPlayers={allPlayers}
+                        state={state}
+                        user={user}
                     />
                 )
             }
@@ -481,26 +479,26 @@ const Trades = ({
 
 
 
-    let managers_list = Object.keys(stateLeaguematesDict).map(user_id => {
+    let managers_list = Object.keys(leaguematesDict).map(user_id => {
         return {
             id: user_id,
-            text: stateLeaguematesDict[user_id].username,
+            text: leaguematesDict[user_id].username,
             image: {
-                src: stateLeaguematesDict[user_id].avatar,
+                src: leaguematesDict[user_id].avatar,
                 alt: 'user avatar',
                 type: 'user'
             }
         }
     })
 
-    const managers_list2 = Object.keys(stateLeaguematesDict)
+    const managers_list2 = Object.keys(leaguematesDict)
         .filter(lm => tradesDisplay?.find(trade => trade.managers.includes(lm)))
         .map(user_id => {
             return {
                 id: user_id,
-                text: stateLeaguematesDict[user_id].username,
+                text: leaguematesDict[user_id].username,
                 image: {
-                    src: stateLeaguematesDict[user_id].avatar,
+                    src: leaguematesDict[user_id].avatar,
                     alt: 'user avatar',
                     type: 'user'
                 }
@@ -515,8 +513,8 @@ const Trades = ({
         return Array.from(Array(5).keys()).map(round => {
             if (season !== 0) {
                 return picks_list.push({
-                    id: `${season + parseInt(stateState.league_season)} ${round + 1}.${null}`,
-                    text: `${season + parseInt(stateState.league_season)}  Round ${round + 1}`,
+                    id: `${season + parseInt(state.league_season)} ${round + 1}.${null}`,
+                    text: `${season + parseInt(state.league_season)}  Round ${round + 1}`,
                     image: {
                         src: null,
                         alt: 'pick headshot',
@@ -526,8 +524,8 @@ const Trades = ({
             } else {
                 return Array.from(Array(12).keys()).map(order => {
                     return picks_list.push({
-                        id: `${season + parseInt(stateState.league_season)} ${round + 1}.${season === 0 ? (order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`,
-                        text: `${season + parseInt(stateState.league_season)} ${season === 0 ? `${round + 1}.${(order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` Round ${round + 1}`}`,
+                        id: `${season + parseInt(state.league_season)} ${round + 1}.${season === 0 ? (order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`,
+                        text: `${season + parseInt(state.league_season)} ${season === 0 ? `${round + 1}.${(order + 1).toLocaleString("en-US", { minimumIntegerDigits: 2 })}` : ` Round ${round + 1}`}`,
                         image: {
                             src: null,
                             alt: 'pick headshot',
@@ -543,12 +541,12 @@ const Trades = ({
     const players_list = [
         ...Array.from(
             new Set(
-                stateLeagues.map(league => league.rosters?.map(roster => roster.players)).flat(3)
+                leagues.map(league => league.rosters?.map(roster => roster.players)).flat(3)
             )
         ).map(player_id => {
             return {
                 id: player_id,
-                text: stateAllPlayers[player_id]?.full_name,
+                text: allPlayers[player_id]?.full_name,
                 image: {
                     src: player_id,
                     alt: 'player headshot',
@@ -563,7 +561,7 @@ const Trades = ({
         .filter(draft_pick =>
             tradesDisplay?.find(trade =>
                 trade.draft_picks.find(pick =>
-                    draft_pick.id === `${pick.season} ${pick.round}.${pick.season === stateState.league_season && pick.order ? (pick.order).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`
+                    draft_pick.id === `${pick.season} ${pick.round}.${pick.season === state.league_season && pick.order ? (pick.order).toLocaleString("en-US", { minimumIntegerDigits: 2 }) : null}`
                 )
             )
         )
@@ -581,12 +579,12 @@ const Trades = ({
 
 
     const players_list2 = [
-        ...Object.keys(stateAllPlayers)
+        ...Object.keys(allPlayers)
             .filter(player_id => tradesDisplay?.find(trade => Object.keys(trade.adds).includes(player_id)))
             .map(player_id => {
                 return {
                     id: player_id,
-                    text: stateAllPlayers[player_id].full_name,
+                    text: allPlayers[player_id].full_name,
                     image: {
                         src: player_id,
                         alt: 'player headshot',
@@ -665,27 +663,27 @@ const Trades = ({
     }
 
     const loadMore = async () => {
-        setIsLoadingTrades(true)
+
         if (tab === 'Leaguemate Trades') {
             if (searched_player === '' && searched_manager === '') {
-                let trades = stateLmTrades.trades;
+                let trades = lmTrades.trades;
                 let tradesMore = await axios.post('/trade/leaguemate', {
-                    user_id: state_user.user_id,
-                    leaguemates: Object.keys(stateLeaguematesDict),
+                    user_id: user.user_id,
+                    leaguemates: Object.keys(leaguematesDict),
                     offset: trades.length,
                     limit: 125
                 })
 
-                setPage(Math.ceil(stateLmTrades.trades.length / 25) + 1)
-                setStateLmTrades({
-                    ...stateLmTrades,
-                    trades: [...stateLmTrades.trades, ...getTradeTips(tradesMore.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season)]
+                setPage(Math.ceil(lmTrades.trades.length / 25) + 1)
+                setlmTrades({
+                    ...lmTrades,
+                    trades: [...lmTrades.trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, state.league_season)]
                 })
             } else {
-                let trades = stateLmTrades.searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)?.trades || []
+                let trades = lmTrades.searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)?.trades || []
                 let tradesMore = await axios.post('/trade/leaguemate', {
-                    user_id: state_user.user_id,
-                    leaguemates: Object.keys(stateLeaguematesDict),
+                    user_id: user.user_id,
+                    leaguemates: Object.keys(leaguematesDict),
                     player: searched_player.id,
                     manager: searched_manager.id,
                     offset: trades.length,
@@ -693,14 +691,14 @@ const Trades = ({
                 })
 
                 setPage(Math.ceil(trades.length / 25) + 1)
-                setStateLmTrades({
-                    ...stateLmTrades,
+                setlmTrades({
+                    ...lmTrades,
                     searches: [
-                        ...stateLmTrades.searches.filter(s => !(s.player === searched_player.id && s.manager === searched_manager.id)),
+                        ...lmTrades.searches.filter(s => !(s.player === searched_player.id && s.manager === searched_manager.id)),
                         {
                             player: searched_player.id,
                             manager: searched_manager.id,
-                            trades: [...trades, ...getTradeTips(tradesMore.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season)],
+                            trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, state.league_season)],
                             count: tradesMore.data.count
                         }
                     ]
@@ -721,18 +719,18 @@ const Trades = ({
                 {
                     player: pricecheck_player.id,
                     player2: pricecheck_player2.id,
-                    trades: [...trades, ...getTradeTips(tradesMore.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season)],
+                    trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, state.league_season)],
                     count: tradesMore.data.count
                 }
             ])
         }
-        setIsLoadingTrades(false)
+
     }
 
     return <>
         <h2>
             {tradeCount?.toLocaleString("en-US")}
-            {` ${stateState.league_season} Trades`}
+            {` ${state.league_season} Trades`}
 
         </h2>
         <div className='navbar'>
@@ -744,7 +742,7 @@ const Trades = ({
                 className='trades'
                 onChange={(e) => setTab(e.target.value)}
                 value={tab}
-                disabled={isLoadingTrades}
+                disabled={isLoadingLmTrades}
             >
                 <option>Price Check </option>
                 <option>Leaguemate Trades</option>
@@ -755,7 +753,7 @@ const Trades = ({
             {searchBar}
         </div>
         {
-            isLoadingTrades ?
+            isLoadingLmTrades ?
                 <div className='loading_wrapper'>
                     {loadingIcon}
                 </div>
@@ -771,7 +769,7 @@ const Trades = ({
                     setPage={setPage}
                     partial={tradesDisplay?.length < tradeCount ? true : false}
                     loadMore={loadMore}
-                    isLoading={isLoadingTrades}
+                    isLoading={isLoadingLmTrades}
                 />
         }
     </>

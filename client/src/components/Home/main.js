@@ -1,72 +1,62 @@
 import { useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
-import { getLeagueData } from '../Functions/getLeagueData';
 import { loadingIcon } from "../Functions/misc";
 import View from "./view";
-import { getTradeTips } from "../Functions/getTradeTips";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchLeagues, fetchLmTrades, fetchUser } from '../../actions/actions';
+
 
 const Main = () => {
     const params = useParams();
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingTrades, setIsLoadingTrades] = useState(false);
-    const [stateState, setStateState] = useState({})
-    const [stateAllPlayers, setStateAllPlayers] = useState({});
-    const [stateNflSchedule, setStateNflSchedule] = useState({});
-    const [state_user, setState_User] = useState({});
-    const [stateLeagues, setStateLeagues] = useState([]);
-    const [stateLeaguemates, setStateLeaguemates] = useState([]);
-    const [stateLeaguematesDict, setStateLeaguematesDict] = useState({});
-    const [statePlayerShares, setStatePlayerShares] = useState([]);
-    const [stateLmTrades, setStateLmTrades] = useState({});
-    const [stateLmLeaguesTrades, setStateLmLeaguesTrades] = useState({});
     const [statePriceCheckTrades, setStatePriceCheckTrades] = useState([])
+    const dispatch = useDispatch();
+    const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
+    const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
+    const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
+
+    useEffect(() => {
+        dispatch(fetchUser(params.username));
+    }, [params.username, dispatch])
 
 
     useEffect(() => {
+        /*
         const fetchLeagues = async () => {
-            setIsLoading(true)
 
-            const user = await axios.post('/user/create', {
-                username: params.username,
-                season: params.season
-            })
+            const [home, leagues] = await Promise.all([
+                await axios.get('/home'),
 
-            if (!user.data?.error) {
-                setState_User(user.data[0])
+                await axios.post('/league/find', {
+                    user_id: user?.user_id
+                })
+            ])
 
+            const data = getLeagueData(leagues.data, user?.user_id, home.data.state)
 
-                const [home, leagues] = await Promise.all([
-                    await axios.get('/home'),
-
-                    await axios.post('/league/find', {
-                        user_id: user.data[0]?.user_id,
-                        season: params.season
-                    })
-                ])
+            setStateState(home.data.state)
+            setStateAllPlayers(home.data.allplayers)
+            setStateNflSchedule(home.data.schedule)
 
 
-                const data = getLeagueData(leagues.data, user.data[0].user_id, home.data.state, params.season)
+            setStateLeagues(data.leagues)
+            setStatePlayerShares(data.players)
+            setStateLeaguemates(data.leaguemates)
+            setStateLeaguematesDict(data.leaguematesDict)
 
-                setStateState(home.data.state)
-                setStateAllPlayers(home.data.allplayers)
-                setStateNflSchedule(home.data.schedule)
 
-                setState_User(user.data[0])
-                setStateLeagues(data.leagues)
-                setStatePlayerShares(data.players)
-                setStateLeaguemates(data.leaguemates)
-                setStateLeaguematesDict(data.leaguematesDict)
-                setIsLoading(false)
-            } else {
-                setState_User(user.data)
-                setIsLoading(false)
-            }
         }
-        fetchLeagues()
-    }, [params.username, params.season])
+        if (user?.user_id) {
+            fetchLeagues()
+        }
+        */
+
+        if (user?.user_id) {
+            dispatch(fetchLeagues(user.user_id))
+        }
+    }, [user])
 
     useEffect(() => {
+        /*
         const fetchTrades = async () => {
             setIsLoadingTrades(true)
 
@@ -75,8 +65,8 @@ const Main = () => {
 
             if (!trades) {
                 trades = await axios.post('/trade/leaguemate', {
-                    user_id: state_user.user_id,
-                    leaguemates: Object.keys(stateLeaguematesDict),
+                    user_id: user.user_id,
+                    leaguemates: Object.keys(leaguematesDict),
                     offset: stateLmTrades.length,
                     limit: 125
                 })
@@ -86,7 +76,7 @@ const Main = () => {
                     ...stateLmTrades,
                     count: trades.data.count,
                     leagues: trades.data.leagues,
-                    trades: getTradeTips(trades.data.rows, stateLeagues, stateLeaguematesDict, stateState.league_season)
+                    trades: getTradeTips(trades.data.rows, leagues, leaguematesDict, state.league_season)
                 })
 
 
@@ -95,17 +85,20 @@ const Main = () => {
 
             setIsLoadingTrades(false)
         }
+        */
 
-        if (state_user.user_id && Object.keys(stateLeaguematesDict).length > 0) {
-            fetchTrades()
+        if (user?.user_id && Object.keys(leaguematesDict).length > 0) {
+            dispatch(fetchLmTrades(user.user_id, Object.keys(leaguematesDict), leagues, state.league_season, lmTrades?.trades?.length || 0, 125))
         }
-    }, [state_user, stateLeaguematesDict])
+    }, [user, leaguematesDict])
+
 
 
 
 
     const syncLeague = async (league_id) => {
-        const leagues = stateLeagues
+        /*
+        const leagues = leagues
         const syncdMatchup = await axios.post('/league/sync', {
             league_id: league_id
         })
@@ -113,41 +106,34 @@ const Main = () => {
             if (league.league_id === league_id) {
                 league = {
                     ...league,
-                    [`matchups_${stateState.display_week}`]: syncdMatchup.data
+                    [`matchups_${state.display_week}`]: syncdMatchup.data
                 }
             }
             return league
         })
         setStateLeagues([...leaguesSynced])
+        */
     }
+
+    console.log(isLoadingLeagues)
 
     return <>
         {
-            isLoading || !state_user ?
-                isLoading && loadingIcon
+            (isLoadingUser || isLoadingLeagues || !user) ?
+                loadingIcon
 
-                : state_user.error ? <h1>{state_user.error}</h1>
+                : errorUser ? <h1>{errorUser}</h1>
                     : <React.Suspense fallback={loadingIcon}>
 
                         <View
-                            stateState={stateState}
-                            stateAllPlayers={stateAllPlayers}
-                            state_user={state_user}
-                            stateLeagues={stateLeagues}
-                            stateLeaguemates={stateLeaguemates}
-                            stateLeaguematesDict={stateLeaguematesDict}
-                            statePlayerShares={statePlayerShares}
-                            stateLmTrades={stateLmTrades}
-                            setStateLmTrades={setStateLmTrades}
-                            stateLmLeaguesTrades={stateLmLeaguesTrades}
-                            setStateLmLeaguesTrades={setStateLmLeaguesTrades}
+
+                            setStateLmTrades={console.log}
+
                             statePriceCheckTrades={statePriceCheckTrades}
                             setStatePriceCheckTrades={setStatePriceCheckTrades}
-                            stateNflSchedule={stateNflSchedule}
+
                             syncLeague={syncLeague}
 
-                            isLoadingTrades={isLoadingTrades}
-                            setIsLoadingTrades={setIsLoadingTrades}
 
                         />
                     </React.Suspense>

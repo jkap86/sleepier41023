@@ -7,10 +7,9 @@ import PositionFilter from "../Home/positionFilter";
 import '../Home/css/modal.css';
 import { getLocalDate } from '../Functions/dates';
 import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
 
 const Players = ({
-    stateAllPlayers,
-    state_user,
     statePlayerShares,
     leagues_count
 }) => {
@@ -26,7 +25,9 @@ const Players = ({
     const [snapPercentage, setSnapPercentage] = useState(0)
     const [stateDynastyRankings, setStateDynastyRankings] = useState([])
     const [stateStats, setStateStats] = useState({})
-
+    const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
+    const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
+    const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
 
 
     useEffect(() => {
@@ -141,15 +142,15 @@ const Players = ({
     const playerShares_body = statePlayerShares
         .filter(x =>
             (
-                x.id.includes('_') || stateAllPlayers[x.id])
+                x.id.includes('_') || allPlayers[x.id])
             && (
-                filterPosition === stateAllPlayers[x.id]?.position
-                || filterPosition.split('/').includes(stateAllPlayers[x.id]?.position?.slice(0, 1))
+                filterPosition === allPlayers[x.id]?.position
+                || filterPosition.split('/').includes(allPlayers[x.id]?.position?.slice(0, 1))
                 || (
                     filterPosition === 'Picks' && x.id.includes('_')
                 )
             ) && (
-                filterTeam === 'All' || stateAllPlayers[x.id]?.team === filterTeam
+                filterTeam === 'All' || allPlayers[x.id]?.team === filterTeam
             )
         )
         .sort((a, b) => b.leagues_owned.length - a.leagues_owned.length)
@@ -195,7 +196,7 @@ const Players = ({
             return {
                 id: player.id,
                 search: {
-                    text: stateAllPlayers[player.id] && `${stateAllPlayers[player.id]?.full_name} ${stateAllPlayers[player.id]?.position} ${stateAllPlayers[player.id]?.team || 'FA'}` || pick_name,
+                    text: allPlayers[player.id] && `${allPlayers[player.id]?.full_name} ${allPlayers[player.id]?.position} ${allPlayers[player.id]?.team || 'FA'}` || pick_name,
                     image: {
                         src: player.id,
                         alt: 'player photo',
@@ -204,12 +205,12 @@ const Players = ({
                 },
                 list: [
                     {
-                        text: player.id.includes('_') ? pick_name : `${stateAllPlayers[player.id]?.position} ${stateAllPlayers[player.id]?.full_name} ${player.id.includes('_') ? '' : stateAllPlayers[player.id]?.team || 'FA'}` || `INACTIVE PLAYER`,
+                        text: player.id.includes('_') ? pick_name : `${allPlayers[player.id]?.position} ${allPlayers[player.id]?.full_name} ${player.id.includes('_') ? '' : allPlayers[player.id]?.team || 'FA'}` || `INACTIVE PLAYER`,
                         colSpan: 4,
                         className: 'left',
                         image: {
-                            src: stateAllPlayers[player.id] ? player.id : headshot,
-                            alt: stateAllPlayers[player.id]?.full_name || player.id,
+                            src: allPlayers[player.id] ? player.id : headshot,
+                            alt: allPlayers[player.id]?.full_name || player.id,
                             type: 'player'
                         }
                     },
@@ -251,7 +252,7 @@ const Players = ({
                         stateStats={stateStats}
                         snapPercentage={snapPercentage}
                         player_id={player.id}
-                        stateAllPlayers={stateAllPlayers}
+                        allPlayers={allPlayers}
                     />
                 )
             }

@@ -7,30 +7,13 @@ import Leagues from '../Leagues/leagues';
 import Leaguemates from '../Leaguemates/leaguemates';
 import Trades from '../Trades/trades';
 import Lineups from "../Lineups/lineups";
-
+import { useSelector, useDispatch } from 'react-redux';
 
 const View = ({
-    stateState,
-    stateAllPlayers,
-    state_user,
-    stateLeagues,
-    stateLeaguemates,
-    stateLeaguematesDict,
-    statePlayerShares,
-    stateLmTrades,
     setStateLmTrades,
-    stateLmLeaguesTrades,
-    setStateLmLeaguesTrades,
     statePriceCheckTrades,
     setStatePriceCheckTrades,
-    stateNflSchedule,
-    syncLeague,
-    stateDynastyRankings,
-    setStateDynastyRankings,
-    isLoadingTrades,
-    setIsLoadingTrades,
-    stateStats,
-    setStateStats
+    syncLeague
 }) => {
     const [tab, setTab] = useState('Players');
     const [type1, setType1] = useState('All');
@@ -39,10 +22,13 @@ const View = ({
     const [statePlayerSharesFiltered, setStatePlayerSharesFiltered] = useState([]);
     const [stateLeaguematesFiltered, setStateLeaguematesFiltered] = useState([]);
     const [uploadedRankings, setUploadedRankings] = useState({})
+    const { user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
+    const { state, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
+    const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
 
 
     useEffect(() => {
-        const filtered_data = filterData(stateLeagues, type1, type2, stateLeaguemates, statePlayerShares)
+        const filtered_data = filterData(leagues, type1, type2, leaguemates, playerShares)
 
         setStateLeaguesFiltered([...filtered_data.leagues])
         setStatePlayerSharesFiltered([...filtered_data.playershares])
@@ -50,7 +36,7 @@ const View = ({
 
         console.log(filtered_data)
 
-    }, [state_user, stateLeagues, type1, type2, stateLeaguemates, statePlayerShares])
+    }, [user, leagues, type1, type2, leaguemates, playerShares])
 
 
     let display;
@@ -58,8 +44,7 @@ const View = ({
     switch (tab) {
         case 'Players':
             display = <Players
-                stateAllPlayers={stateAllPlayers}
-                state_user={state_user}
+
                 statePlayerShares={statePlayerSharesFiltered}
                 leagues_count={stateLeaguesFiltered.length}
 
@@ -67,45 +52,36 @@ const View = ({
             break;
         case 'Leaguemates':
             display = <Leaguemates
-                stateAllPlayers={stateAllPlayers}
-                state_user={state_user}
+                stateAllPlayers={allPlayers}
+                state_user={user}
                 stateLeaguemates={stateLeaguematesFiltered}
             />
             break;
         case 'Leagues':
             display = <Leagues
-                stateAllPlayers={stateAllPlayers}
-                state_user={state_user}
+                stateAllPlayers={allPlayers}
+                state_user={user}
                 stateLeagues={stateLeaguesFiltered}
             />
             break;
         case 'Trades':
             display = <Trades
-                stateState={stateState}
-                stateAllPlayers={stateAllPlayers}
-                state_user={state_user}
-                stateLmTrades={stateLmTrades}
+
                 setStateLmTrades={setStateLmTrades}
-                stateLmLeaguesTrades={stateLmLeaguesTrades}
-                setStateLmLeaguesTrades={setStateLmLeaguesTrades}
                 statePriceCheckTrades={statePriceCheckTrades}
                 setStatePriceCheckTrades={setStatePriceCheckTrades}
-                stateLeaguematesDict={stateLeaguematesDict}
-                stateLeagues={stateLeagues}
-                stateDynastyRankings={stateDynastyRankings}
-                isLoadingTrades={isLoadingTrades}
-                setIsLoadingTrades={setIsLoadingTrades}
+
             />
             break;
         case 'Lineups':
             display = <Lineups
                 stateLeagues={stateLeaguesFiltered}
-                stateAllPlayers={stateAllPlayers}
+                stateAllPlayers={allPlayers}
                 uploadedRankings={uploadedRankings}
                 setUploadedRankings={setUploadedRankings}
-                stateState={stateState}
-                state_user={state_user}
-                stateNflSchedule={stateNflSchedule}
+                stateState={state}
+                state_user={user}
+                stateNflSchedule={nflSchedule}
                 syncLeague={syncLeague}
             />
             break;
@@ -120,8 +96,8 @@ const View = ({
             Home
         </Link>
         <Heading
-            stateState={stateState}
-            state_user={state_user}
+            stateState={state}
+            state_user={user}
             stateLeaguesFiltered={stateLeaguesFiltered}
             tab={tab}
             setTab={setTab}
