@@ -30,10 +30,6 @@ exports.find = async (req, res) => {
 
     })
 
-    console.log(values)
-
-    console.log(new Date(req.body.date2).toLocaleDateString("en-US"))
-
     res.send(values)
 }
 

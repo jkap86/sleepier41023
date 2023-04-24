@@ -8,8 +8,6 @@ const sequelize = db.sequelize
 
 
 exports.leaguemate = async (req, res) => {
-    console.log(req.body)
-
     let filters = [];
 
     if (req.body.manager) {

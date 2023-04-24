@@ -12,7 +12,11 @@ module.exports = app => {
 
     router.post("/create", users.create)
 
-    router.post("/findmostleagues", users.findMostLeagues)
+    users.findMostLeagues(app)
+
+    router.post("/findmostleagues", (req, res) => {
+        res.send(app.get('top_users'))
+    })
 
     app.use('/user', router);
 }
