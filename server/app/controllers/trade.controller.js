@@ -8,6 +8,8 @@ const sequelize = db.sequelize
 
 
 exports.leaguemate = async (req, res) => {
+    console.log(req.body)
+
     let filters = [];
 
     if (req.body.manager) {
@@ -30,17 +32,17 @@ exports.leaguemate = async (req, res) => {
             const pick_split = req.body.player.split(' ')
             const season = pick_split[0]
             const round = parseInt(pick_split[1]?.split('.')[0])
-            const order = parseInt(pick_split[1]?.split('.')[1])
+            const order = parseInt(season) === parseInt(new Date().getFullYear()) ? parseInt(pick_split[1]?.split('.')[1]) : null
 
             filters.push({
-                price_check: {
+                players: {
                     [Op.contains]: [`${season} ${round}.${order}`]
                 }
 
             })
         } else {
             filters.push({
-                price_check: {
+                players: {
                     [Op.contains]: [req.body.player]
                 }
 
