@@ -1,11 +1,13 @@
 import TableMain from "../Home/tableMain";
+import { useSelector } from 'react-redux';
 
 const LeaguematePlayersLeagues = ({
-    state_user,
     leagues_lm,
     leagues_user,
     leaguemate
 }) => {
+    const { user: state_user } = useSelector(state => state.user)
+
 
     const lm_headers = [
         [

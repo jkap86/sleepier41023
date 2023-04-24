@@ -1,11 +1,14 @@
 import TableMain from "../Home/tableMain";
 import { useState } from "react";
 import LeagueInfo from "../Leagues/leagueInfo";
+import { useSelector } from 'react-redux';
 
-const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, stateStats, player_id, snapPercentage, stateAllPlayers }) => {
+const PlayerLeagues = ({ leagues_owned, leagues_taken, leagues_available, player_id, snapPercentage }) => {
     const [tab, setTab] = useState('Owned');
     const [page, setPage] = useState(1)
     const [itemActive, setItemActive] = useState('');
+    const { allPlayers: stateAllPlayers } = useSelector(state => state.leagues)
+    const { stats: stateStats } = useSelector(state => state.stats)
 
     const getPlayerScore = (stats_array, scoring_settings) => {
         let total_breakdown = {};

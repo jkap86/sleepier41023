@@ -1,15 +1,15 @@
 import TableMain from "../Home/tableMain";
 import { useState } from "react";
 import LeaguemateLeagues from './leaguemateLeagues'
+import { useSelector } from 'react-redux';
 
-const Leaguemates = ({
-    stateAllPlayers,
-    state_user,
-    stateLeaguemates
-}) => {
+const Leaguemates = ({ }) => {
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
+    const { user: state_user } = useSelector(state => state.user)
+    const { allPlayers: stateAllPlayers } = useSelector(state => state.leagues)
+    const { leaguematesFiltered: stateLeaguemates } = useSelector(state => state.filteredData)
 
     const leaguemates_headers = [
         [
@@ -148,8 +148,6 @@ const Leaguemates = ({
                 ],
                 secondary_table: (
                     <LeaguemateLeagues
-                        stateAllPlayers={stateAllPlayers}
-                        state_user={state_user}
                         leaguemate={lm}
                     />
                 )

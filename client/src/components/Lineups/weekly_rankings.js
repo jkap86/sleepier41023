@@ -7,16 +7,14 @@ import { utils, writeFile } from 'xlsx';
 import TeamFilter from "../Home/teamFilter";
 import PositionFilter from "../Home/positionFilter";
 import { useSelector, useDispatch } from 'react-redux';
-import { setTab } from '../../actions/actions';
 import { uploadRankings } from "../../actions/actions";
 
 const WeeklyRankings = ({
-
-
+    tab,
+    setTab
 }) => {
     const dispatch = useDispatch();
     const { allPlayers: stateAllPlayers, state: stateState, nflSchedule: stateNflSchedule } = useSelector(state => state.leagues)
-    const { tab } = useSelector(state => state.tab);
     const [errorVisible, setErrorVisible] = useState(false);
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
@@ -243,7 +241,7 @@ const WeeklyRankings = ({
 
             <select
                 className='trades'
-                onChange={(e) => dispatch(setTab(e.target.value))}
+                onChange={(e) => setTab(e.target.value)}
                 value={tab}
 
             >

@@ -7,18 +7,15 @@ import { useSelector } from 'react-redux';
 const LeagueInfo = ({
     league,
     scoring_settings,
-    stateStats,
     getPlayerScore,
     snapPercentage,
     type
 }) => {
+    const { stats: stateStats } = useSelector(state => state.stats);
     const { state: stateState, allPlayers: stateAllPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
     const [itemActive, setItemActive] = useState('');
     const [secondaryContent, setSecondaryContent] = useState('Lineup')
 
-    console.log({
-        league: league
-    })
 
     const active_roster = league.rosters.find(x => x.roster_id === itemActive)
 

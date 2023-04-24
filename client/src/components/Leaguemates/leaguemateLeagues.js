@@ -1,13 +1,18 @@
 import TableMain from "../Home/tableMain";
 import { memo, useState, useEffect } from "react"
 import LeaguematePlayersLeagues from "./leaguematePlayersLeagues"
+import { useSelector } from 'react-redux';
 
-const LeaguemateLeagues = ({ stateAllPlayers, state_user, leaguemate }) => {
+
+const LeaguemateLeagues = ({ leaguemate }) => {
     const [secondaryContent, setSecondaryContent] = useState('Leagues')
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
     const [itemActive, setItemActive] = useState('')
     const [playersCount, setPlayersCount] = useState([])
+    const { user: state_user } = useSelector(state => state.user)
+    const { allPlayers: stateAllPlayers } = useSelector(state => state.leagues)
+
 
     const sort = (sort_by) => {
         console.log(sort_by)
@@ -252,7 +257,6 @@ const LeaguemateLeagues = ({ stateAllPlayers, state_user, leaguemate }) => {
                 ],
                 secondary_table: (
                     <LeaguematePlayersLeagues
-                        state_user={state_user}
                         leagues_lm={player.leagues_lm}
                         leagues_user={player.leagues_user}
                         leaguemate={leaguemate}

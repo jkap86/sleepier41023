@@ -10,10 +10,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setTrendDateStart, setTrendDateEnd, fetchStats, fetchValues } from "../../actions/actions";
 
-const Players = ({
-    statePlayerShares,
-    leagues_count
-}) => {
+const Players = ({ }) => {
     const dispatch = useDispatch();
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)

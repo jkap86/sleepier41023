@@ -2,21 +2,20 @@ import TableMain from "../Home/tableMain";
 import { getLineupCheck } from "../Functions/getLineupCheck";
 import { useState } from "react";
 import Lineup from "./lineup";
+import { useSelector } from 'react-redux';
 
 const LineupCheck = ({
     tab,
     setTab,
-    uploadedRankings,
-    stateLeagues,
-    stateState,
-    stateAllPlayers,
-    state_user,
-    syncLeague,
-    stateNflSchedule
+    syncLeague
 }) => {
     const [itemActive, setItemActive] = useState('');
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
+    const { user: state_user } = useSelector(state => state.user)
+    const { allPlayers: stateAllPlayers, state: stateState, nflSchedule: stateNflSchedule } = useSelector(state => state.leagues)
+    const { leaguesFiltered: stateLeagues } = useSelector(state => state.filteredData)
+    const { rankings, notMatched, filename, error } = useSelector(state => state.lineups)
 
 
     const lineups_headers = [
@@ -75,7 +74,7 @@ const LineupCheck = ({
 
 
         }
-        let lineups = matchup && uploadedRankings.rankings && getLineupCheck(matchup, league, stateAllPlayers, uploadedRankings.rankings, stateNflSchedule[stateState.display_week])
+        let lineups = matchup && rankings && getLineupCheck(matchup, league, stateAllPlayers, rankings, stateNflSchedule[stateState.display_week])
         const optimal_lineup = lineups?.optimal_lineup
         const lineup_check = lineups?.lineup_check
         const starting_slots = lineups?.starting_slots
@@ -148,7 +147,7 @@ const LineupCheck = ({
                     syncLeague={syncLeague}
                     searched={searched}
                     setSearched={setSearched}
-                    uploadedRankings={uploadedRankings}
+
                     stateState={stateState}
                     stateNflSchedule={stateNflSchedule}
                 />
