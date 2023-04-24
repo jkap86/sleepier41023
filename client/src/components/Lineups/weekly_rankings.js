@@ -142,7 +142,7 @@ const WeeklyRankings = ({
         })
 
     const handleRankChange = (players_to_update) => {
-        /*
+
         let r = rankings
 
         players_to_update.map(player_to_update => {
@@ -166,26 +166,24 @@ const WeeklyRankings = ({
                     })
             }
         })
-        setUploadedRankings({
-            ...uploadedRankings,
-            rankings: { ...r }
-        })
-        */
+        dispatch(uploadRankings({
+            rankings: r
+        }))
+
     }
 
     const handleRankSave = () => {
-        /*
-                let r = rankings
-        
-                Object.keys(r || {}).map(player_id => {
-                    return r[player_id].prevRank = !parseInt(r[player_id].newRank) ? 999 : r[player_id].newRank
-                })
-                setUploadedRankings({
-                    ...uploadedRankings,
-                    rankings: { ...r }
-                })
-                setEdit(false)
-            */
+
+        let r = rankings
+
+        Object.keys(r || {}).map(player_id => {
+            return r[player_id].prevRank = !parseInt(r[player_id].newRank) ? 999 : r[player_id].newRank
+        })
+        dispatch(uploadRankings({
+            rankings: r
+        }))
+        setEdit(false)
+
     }
 
     const downloadFile = () => {

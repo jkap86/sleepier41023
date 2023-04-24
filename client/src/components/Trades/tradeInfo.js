@@ -1,14 +1,15 @@
 import { useState } from "react";
 import TradeTargets from "./tradeTargets";
 import TradeRosters from "./tradeRosters";
+import { useSelector } from 'react-redux';
+
 
 const TradeInfo = ({
-    trade,
-    stateAllPlayers,
-    stateState,
-    state_user
+    trade
 }) => {
     const [tab, setTab] = useState('Leads');
+    const { user: state_user, isLoading: isLoadingUser, error: errorUser } = useSelector((state) => state.user);
+    const { state: stateState, allPlayers: stateAllPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
 
     let display;
 

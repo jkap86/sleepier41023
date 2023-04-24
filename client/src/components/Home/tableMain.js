@@ -213,11 +213,11 @@ const TableMain = ({ id, type, headers, body, page, setPage, itemActive, setItem
                     </tbody>
             }
             {
-                (((page - 1) * 25) + 25) < body_filtered?.length ?
+                (((page - 1) * 25) + 25) < body_filtered?.length || partial ?
                     <tbody>
                         <tr
                             className={'click'}
-                            onClick={() => setPage(prevState => prevState + 1)}
+                            onClick={(((page - 1) * 25) + 25) < body_filtered?.length ? () => setPage(prevState => prevState + 1) : loadMore}
                         >
                             <td colSpan={headers[0].reduce((acc, cur) => acc + (cur.colSpan || 0), 0)}>NEXT PAGE</td>
                         </tr>

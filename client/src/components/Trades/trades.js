@@ -8,7 +8,7 @@ import TradeInfo from './tradeInfo';
 import Search from '../Home/search';
 import { avatar } from '../Functions/misc';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchFilteredLmTrades } from '../../actions/actions';
+import { fetchFilteredLmTrades, fetchValues, fetchLmTrades } from '../../actions/actions';
 
 const Trades = ({
 
@@ -26,7 +26,6 @@ const Trades = ({
     const [searched_manager, setSearched_Manager] = useState('')
     const [pricecheck_player, setPricecheck_player] = useState('')
     const [pricecheck_player2, setPricecheck_player2] = useState('')
-    const [stateDynastyRankings, setStateDynastyRankings] = useState([])
     const [filterType, setFilterType] = useState('Player')
     const [tradesDisplay, setTradesDisplay] = useState([])
     const [tradeCount, setTradeCount] = useState(0)
@@ -34,6 +33,8 @@ const Trades = ({
     const { state: stateState, allPlayers, nflSchedule, leagues, leaguemates, leaguematesDict, playerShares, isLoading: isLoadingLeagues, error: errorLeagues } = useSelector(state => state.leagues)
     const { lmTrades, isLoading: isLoadingLmTrades, error: errorLmTrades } = useSelector(state => state.lmTrades);
     const { isLoading: isLoadingFilteredLmTrades, searches, error } = useSelector(state => state.filteredLmTrades);
+    const { dynastyValues: stateDynastyRankings } = useSelector(state => state.dynastyValues)
+
 
     console.log(searches)
     useEffect(() => {
@@ -81,25 +82,11 @@ const Trades = ({
 
     useEffect(() => {
         let trades = tradesDisplay
-        const players = Array.from(new Set(trades.map(trade => Object.keys(trade.adds)).flat()))
         const dates = trades.slice((page - 1) * 25, ((page - 1) * 25) + 25).map(trade => new Date(parseInt(trade.status_updated) - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0])
-
-
-
-        const fetchStats = async () => {
-            const rankings = await axios.post('/dynastyrankings/findrange', {
-                players: players,
-                dates: [...dates, new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]]
-            })
-
-            setStateDynastyRankings(rankings.data)
-
-        }
-
 
         if (trades) {
 
-            fetchStats()
+            dispatch(fetchValues([...dates, new Date(new Date() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]], null))
         }
 
     }, [tradesDisplay, page])
@@ -116,45 +103,8 @@ const Trades = ({
     }, [searched_player, searched_league, searched_manager, pricecheck_player, pricecheck_player2])
 
     useEffect(() => {
-        /*
-        const fetchFilteredTrades = async () => {
-            setisLoadingLmTrades(true)
-
-            let searches = lmTrades.searches || []
-
-            if (!searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)) {
-                const trades = await axios.post('/trade/leaguemate', {
-                    user_id: user.user_id,
-                    leaguemates: Object.keys(leaguematesDict),
-                    player: searched_player.id,
-                    manager: searched_manager.id,
-                    offset: 0,
-                    limit: 125
-                })
-
-                setlmTrades({
-                    ...lmTrades,
-                    searches: [
-                        ...searches,
-                        {
-                            player: searched_player.id,
-                            manager: searched_manager.id,
-                            trades: getTradeTips(trades.data.rows, leagues, leaguematesDict, state.league_season),
-                            count: trades.data.count
-                        }
-                    ]
-                })
-            }
-
-
-            setisLoadingLmTrades(false)
-        }
         if (searched_player !== '' || searched_manager !== '') {
-            fetchFilteredTrades()
-        }
-        */
-        if (searched_player !== '' || searched_manager !== '') {
-            dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, stateState.league_season))
+            dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, stateState.league_season, 0, 125))
         }
     }, [searched_player, searched_manager])
 
@@ -469,9 +419,6 @@ const Trades = ({
                 secondary_table: (
                     <TradeInfo
                         trade={trade}
-                        allPlayers={allPlayers}
-                        state={stateState}
-                        user={user}
                     />
                 )
             }
@@ -663,46 +610,22 @@ const Trades = ({
     }
 
     const loadMore = async () => {
-
+        console.log('LOADING MORE')
         if (tab === 'Leaguemate Trades') {
             if (searched_player === '' && searched_manager === '') {
-                let trades = lmTrades.trades;
-                let tradesMore = await axios.post('/trade/leaguemate', {
-                    user_id: user.user_id,
-                    leaguemates: Object.keys(leaguematesDict),
-                    offset: trades.length,
-                    limit: 125
-                })
 
                 setPage(Math.ceil(lmTrades.trades.length / 25) + 1)
-                setlmTrades({
-                    ...lmTrades,
-                    trades: [...lmTrades.trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, stateState.league_season)]
-                })
-            } else {
-                let trades = lmTrades.searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)?.trades || []
-                let tradesMore = await axios.post('/trade/leaguemate', {
-                    user_id: user.user_id,
-                    leaguemates: Object.keys(leaguematesDict),
-                    player: searched_player.id,
-                    manager: searched_manager.id,
-                    offset: trades.length,
-                    limit: 125
-                })
+                dispatch(fetchLmTrades(user.user_id, Object.keys(leaguematesDict), leagues, stateState.league_season, lmTrades.trades.length, 125))
 
-                setPage(Math.ceil(trades.length / 25) + 1)
-                setlmTrades({
-                    ...lmTrades,
-                    searches: [
-                        ...lmTrades.searches.filter(s => !(s.player === searched_player.id && s.manager === searched_manager.id)),
-                        {
-                            player: searched_player.id,
-                            manager: searched_manager.id,
-                            trades: [...trades, ...getTradeTips(tradesMore.data.rows, leagues, leaguematesDict, stateState.league_season)],
-                            count: tradesMore.data.count
-                        }
-                    ]
-                })
+
+
+            } else {
+                setPage(Math.ceil(tradesDisplay.length / 25) + 1)
+
+                dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, stateState.league_season, tradesDisplay.length, 125))
+
+
+
             }
         } else if (tab === 'Price Check') {
             let trades = statePriceCheckTrades.find(pcTrade => pcTrade.player === pricecheck_player.id && pcTrade.player2 === pricecheck_player2.id)?.trades || []
@@ -753,7 +676,7 @@ const Trades = ({
             {searchBar}
         </div>
         {
-            isLoadingLmTrades || isLoadingFilteredLmTrades ?
+            (isLoadingLmTrades || isLoadingFilteredLmTrades) ?
                 <div className='loading_wrapper'>
                     {loadingIcon}
                 </div>

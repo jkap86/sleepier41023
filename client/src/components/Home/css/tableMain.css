@@ -47,6 +47,12 @@ table.secondary>thead {
     z-index: 5;
 }
 
+table#trades tr.secondary_wrapper>td {
+    position: sticky;
+    top: var(--sticky3);
+    z-index: 4;
+}
+
 table.tertiary,
 table.tertiary.lineup,
 table.tertiary.subs,
@@ -237,7 +243,7 @@ table.tertiary.subs td {
     top: 28rem;
 }
 
-tr.tertiary.subs.click.active {
+tr.tertiary.subs_wrapper.active td {
     position: sticky;
     top: 35rem;
     z-index: 2;

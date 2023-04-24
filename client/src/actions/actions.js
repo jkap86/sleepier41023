@@ -77,7 +77,7 @@ export const fetchLmTrades = (user_id, leaguemates, leagues, season, offset, lim
     }
 }
 
-export const fetchFilteredLmTrades = (searchedPlayerId, searchedManagerId, league_season) => async (dispatch, getState) => {
+export const fetchFilteredLmTrades = (searchedPlayerId, searchedManagerId, league_season, offset, limit) => async (dispatch, getState) => {
     dispatch({ type: 'FETCH_FILTERED_LMTRADES_START' });
 
     const state = getState();
@@ -87,33 +87,33 @@ export const fetchFilteredLmTrades = (searchedPlayerId, searchedManagerId, leagu
     const searches = state.filteredLmTrades.searches;
     console.log({ searches: searches })
 
-    if (!searches.find((s) => s.player === searchedPlayerId && s.manager === searchedManagerId)) {
 
-        try {
-            const trades = await axios.post('/trade/leaguemate', {
-                user_id: user.user_id,
-                leaguemates: Object.keys(leagues.leaguematesDict),
+
+    try {
+        const trades = await axios.post('/trade/leaguemate', {
+            user_id: user.user_id,
+            leaguemates: Object.keys(leagues.leaguematesDict),
+            player: searchedPlayerId,
+            manager: searchedManagerId,
+            offset: offset,
+            limit: limit,
+        });
+
+        const trades_tips = getTradeTips(trades.data.rows, leagues.leagues, leagues.leaguematesDict, league_season)
+        console.log(trades_tips)
+        dispatch({
+            type: 'FETCH_FILTERED_LMTRADES_SUCCESS',
+            payload: {
                 player: searchedPlayerId,
                 manager: searchedManagerId,
-                offset: 0,
-                limit: 125,
-            });
-
-            const trades_tips = getTradeTips(trades.data.rows, leagues.leagues, leagues.leaguematesDict, league_season)
-            console.log(trades_tips)
-            dispatch({
-                type: 'FETCH_FILTERED_LMTRADES_SUCCESS',
-                payload: {
-                    player: searchedPlayerId,
-                    manager: searchedManagerId,
-                    trades: trades_tips,
-                    count: trades.data.count,
-                },
-            });
-        } catch (error) {
-            dispatch({ type: 'FETCH_FILTERED_LMTRADES_FAILURE', payload: error.message });
-        }
+                trades: trades_tips,
+                count: trades.data.count,
+            },
+        });
+    } catch (error) {
+        dispatch({ type: 'FETCH_FILTERED_LMTRADES_FAILURE', payload: error.message });
     }
+
 
     console.log('Done fetching filtered trades...')
 };
@@ -156,16 +156,22 @@ export const fetchStats = (trendDateStart, trendDateEnd, players) => async (disp
     }
 };
 
-export const fetchValues = (trendDateStart, trendDateEnd) => async (dispatch, getState) => {
+export const fetchValues = (trendDateStart, trendDateEnd, dates) => async (dispatch, getState) => {
     dispatch({ type: 'FETCH_DYNASTY_VALUES_START' })
 
+    let dynastyValues;
     try {
-        const dynastyValues = await axios.post('/dynastyrankings/find', {
+        if (dates) {
+            dynastyValues = await axios.post('/dynastyrankings/findrange', {
+                dates: dates
+            })
+        } else {
+            dynastyValues = await axios.post('/dynastyrankings/find', {
 
-            date1: trendDateStart,
-            date2: trendDateEnd
-        });
-
+                date1: trendDateStart,
+                date2: trendDateEnd
+            });
+        }
         dispatch({ type: 'FETCH_DYNASTY_VALUES_SUCCESS', payload: dynastyValues.data })
     } catch (error) {
         dispatch({ type: 'FETCH_DYNASTY_VALUES_FAILURE', payload: error.message })

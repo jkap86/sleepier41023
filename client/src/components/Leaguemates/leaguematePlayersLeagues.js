@@ -39,7 +39,7 @@ const LeaguematePlayersLeagues = ({
 
     const lm_body = leagues_lm.map(league => {
         return {
-            id: league.league_id,
+            id: league.league.league_id,
             list: [
                 {
                     text: league.league.name,
@@ -71,7 +71,7 @@ const LeaguematePlayersLeagues = ({
 
     const user_body = leagues_user.map(league => {
         return {
-            id: league.league_id,
+            id: league.league.league_id,
             list: [
                 {
                     text: league.league.name,
