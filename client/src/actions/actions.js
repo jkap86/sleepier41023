@@ -81,13 +81,8 @@ export const fetchFilteredLmTrades = (searchedPlayerId, searchedManagerId, leagu
     dispatch({ type: 'FETCH_FILTERED_LMTRADES_START' });
 
     const state = getState();
-    console.log(state)
+
     const { user, leagues } = state;
-
-    const searches = state.filteredLmTrades.searches;
-    console.log({ searches: searches })
-
-
 
     try {
         const trades = await axios.post('/trade/leaguemate', {
@@ -115,7 +110,38 @@ export const fetchFilteredLmTrades = (searchedPlayerId, searchedManagerId, leagu
     }
 
 
-    console.log('Done fetching filtered trades...')
+};
+
+export const fetchPriceCheckTrades = (pricecheck_player, pricecheck_player2, offset, limit) => async (dispatch, getState) => {
+    dispatch({ type: 'FETCH_PRICECHECK_START' });
+
+    const state = getState();
+
+    const { user, leagues } = state;
+
+    try {
+        const player_trades = await axios.post('/trade/pricecheck', {
+            player: pricecheck_player,
+            player2: pricecheck_player2,
+            offset: offset,
+            limit: limit
+        })
+
+        const trades_tips = getTradeTips(player_trades.data.rows, leagues.leagues, leagues.leaguematesDict, leagues.state.league_season)
+        console.log(trades_tips)
+        dispatch({
+            type: 'FETCH_PRICECHECK_SUCCESS',
+            payload: {
+                pricecheck_player: pricecheck_player,
+                pricecheck_player2: pricecheck_player2,
+                trades: trades_tips,
+                count: player_trades.data.count,
+            },
+        });
+    } catch (error) {
+        dispatch({ type: 'FETCH_PRICECHECK_FAILURE', payload: error.message });
+    }
+
 };
 
 export const fetchFilteredData = (type1, type2, leagues, leaguemates, playerShares) => async (dispatch) => {

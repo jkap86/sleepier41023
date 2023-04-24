@@ -8,12 +8,14 @@ import tabReducer from './tabReducer';
 import dynastyValuesReducer from './valuesReducer';
 import statsReducer from './statsReducer';
 import lineupsReducer from './lineupsReducer';
+import pricecheckTradesReducer from './pricecheckTradesReducer';
 
 const rootReducer = combineReducers({
     user: userReducer,
     leagues: leaguesReducer,
     lmTrades: lmTradesReducer,
     filteredLmTrades: filteredLmTradesReducer,
+    pricecheckTrades: pricecheckTradesReducer,
     filteredData: filteredDataReducer,
     tab: tabReducer,
     dynastyValues: dynastyValuesReducer,
