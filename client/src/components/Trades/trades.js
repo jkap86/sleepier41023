@@ -93,14 +93,14 @@ const Trades = ({
     }, [searched_player, searched_league, searched_manager, pricecheck_player, pricecheck_player2])
 
     useEffect(() => {
-        if (searched_player !== '' || searched_manager !== '') {
+        if ((searched_player !== '' || searched_manager !== '') && !searches.find(s => s.player === searched_player.id && s.manager === searched_manager.id)) {
             dispatch(fetchFilteredLmTrades(searched_player.id, searched_manager.id, stateState.league_season, 0, 125))
         }
     }, [searched_player, searched_manager])
 
     useEffect(() => {
 
-        if (pricecheck_player !== '') {
+        if (pricecheck_player !== '' && !pricecheckTrades.find(pc => pc.pricecheck_player === pricecheck_player.id && (pricecheck_player2 === '' || pc.pricecheck_player2 === pricecheck_player2.id))) {
             dispatch(fetchPriceCheckTrades(pricecheck_player.id, pricecheck_player2.id, 0, 125))
         }
     }, [pricecheck_player, pricecheck_player2])
@@ -623,7 +623,7 @@ const Trades = ({
             {searchBar}
         </div>
         {
-            (isLoadingLmTrades || isLoadingFilteredLmTrades) ?
+            (isLoadingLmTrades || isLoadingFilteredLmTrades || isLoadingPricecheckTrades) ?
                 <div className='loading_wrapper'>
                     {loadingIcon}
                 </div>
