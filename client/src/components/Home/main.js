@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { loadingIcon } from "../Functions/misc";
 import View from "./view";
 import { useDispatch, useSelector } from "react-redux";

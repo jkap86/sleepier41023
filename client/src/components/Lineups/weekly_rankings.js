@@ -6,16 +6,17 @@ import { getNewRank } from "../Functions/getNewRank";
 import { utils, writeFile } from 'xlsx';
 import TeamFilter from "../Home/teamFilter";
 import PositionFilter from "../Home/positionFilter";
+import { useSelector, useDispatch } from 'react-redux';
+import { setTab } from '../../actions/actions';
+import { uploadRankings } from "../../actions/actions";
 
 const WeeklyRankings = ({
-    stateAllPlayers,
-    tab,
-    setTab,
-    uploadedRankings,
-    setUploadedRankings,
-    stateState,
-    stateNflSchedule
+
+
 }) => {
+    const dispatch = useDispatch();
+    const { allPlayers: stateAllPlayers, state: stateState, nflSchedule: stateNflSchedule } = useSelector(state => state.leagues)
+    const { tab } = useSelector(state => state.tab);
     const [errorVisible, setErrorVisible] = useState(false);
     const [page, setPage] = useState(1)
     const [searched, setSearched] = useState('')
@@ -23,9 +24,9 @@ const WeeklyRankings = ({
     const [filterPosition, setFilterPosition] = useState('W/R/T/Q')
     const [filterTeam, setFilterTeam] = useState('All')
     const tooltipRef = useRef(null)
+    const { rankings, notMatched, filename, error } = useSelector(state => state.lineups)
 
-    console.log(uploadedRankings)
-
+    console.log(stateNflSchedule)
     const weekly_rankings_headers = [
         [
             {
@@ -68,7 +69,7 @@ const WeeklyRankings = ({
         ]
     ]
 
-    const weekly_rankings_body = Object.keys(uploadedRankings.rankings || {})
+    const weekly_rankings_body = Object.keys(rankings || {})
         ?.filter(x => (
             filterPosition === stateAllPlayers[x]?.position
             || filterPosition.split('/').includes(stateAllPlayers[x]?.position?.slice(0, 1))
@@ -76,7 +77,7 @@ const WeeklyRankings = ({
                 filterTeam === 'All' || filterTeam === stateAllPlayers[x]?.team
             )
         )
-        ?.sort((a, b) => uploadedRankings.rankings[a].prevRank - uploadedRankings.rankings[b].prevRank)
+        ?.sort((a, b) => rankings[a].prevRank - rankings[b].prevRank)
         ?.map(player_id => {
             const offset = new Date().getTimezoneOffset()
             const kickoff = stateNflSchedule[stateState.display_week]
@@ -127,12 +128,12 @@ const WeeklyRankings = ({
                         colSpan: 2
                     },
                     {
-                        text: uploadedRankings.rankings[player_id].prevRank,
+                        text: rankings[player_id].prevRank,
                         colSpan: 1
                     },
                     edit && {
                         text: <input
-                            value={uploadedRankings.rankings[player_id].newRank}
+                            value={rankings[player_id].newRank}
                             className={'editRank'}
                             onChange={(e) => handleRankChange([{ rank: e.target.value, player_id: player_id }])}
                         />,
@@ -143,7 +144,8 @@ const WeeklyRankings = ({
         })
 
     const handleRankChange = (players_to_update) => {
-        let r = uploadedRankings.rankings
+        /*
+        let r = rankings
 
         players_to_update.map(player_to_update => {
             const prevRank = r[player_to_update.player_id].newRank
@@ -170,30 +172,32 @@ const WeeklyRankings = ({
             ...uploadedRankings,
             rankings: { ...r }
         })
+        */
     }
 
     const handleRankSave = () => {
-
-        let r = uploadedRankings.rankings
-
-        Object.keys(r || {}).map(player_id => {
-            return r[player_id].prevRank = !parseInt(r[player_id].newRank) ? 999 : r[player_id].newRank
-        })
-        setUploadedRankings({
-            ...uploadedRankings,
-            rankings: { ...r }
-        })
-        setEdit(false)
+        /*
+                let r = rankings
+        
+                Object.keys(r || {}).map(player_id => {
+                    return r[player_id].prevRank = !parseInt(r[player_id].newRank) ? 999 : r[player_id].newRank
+                })
+                setUploadedRankings({
+                    ...uploadedRankings,
+                    rankings: { ...r }
+                })
+                setEdit(false)
+            */
     }
 
     const downloadFile = () => {
         const workbook = utils.book_new()
-        const data = Object.keys(uploadedRankings.rankings || {}).map(player_id => {
+        const data = Object.keys(rankings || {}).map(player_id => {
             return {
                 name: stateAllPlayers[player_id]?.full_name,
                 position: stateAllPlayers[player_id]?.position,
                 team: stateAllPlayers[player_id]?.team || 'FA',
-                rank: uploadedRankings.rankings[player_id].prevRank
+                rank: rankings[player_id].prevRank
             }
         }).sort((a, b) => a.rank - b.rank)
         const worksheet = utils.json_to_sheet(data)
@@ -239,7 +243,7 @@ const WeeklyRankings = ({
 
             <select
                 className='trades'
-                onChange={(e) => setTab(e.target.value)}
+                onChange={(e) => dispatch(setTab(e.target.value))}
                 value={tab}
 
             >
@@ -256,21 +260,23 @@ const WeeklyRankings = ({
                 </i>
                 <input
                     type={'file'}
-                    onChange={(e) => importRankings(e, stateAllPlayers, setUploadedRankings)}
+                    onChange={(e) => importRankings(e, stateAllPlayers, (uploadedRankings) => {
+                        dispatch(uploadRankings(uploadedRankings))
+                    })}
                 />
             </label>
         </h1>
         <h1>
             {
-                uploadedRankings.filename ?
+                filename ?
                     <i
                         onClick={() => downloadFile()}
                         className="fa-solid fa-download"></i>
                     : null
             }
-            {uploadedRankings.filename}
+            {filename}
             {
-                uploadedRankings.error || uploadedRankings.notMatched?.length > 0 ?
+                error || notMatched?.length > 0 ?
                     <>
 
                         <i
@@ -282,7 +288,7 @@ const WeeklyRankings = ({
                                 <div
                                     className={`${errorVisible ? 'tooltip_content' : 'hidden'}`}>
                                     {
-                                        uploadedRankings.error ||
+                                        error ||
                                         <table>
                                             <thead>
                                                 <tr>
@@ -297,7 +303,7 @@ const WeeklyRankings = ({
                                             </thead>
                                             <tbody>
                                                 {
-                                                    uploadedRankings.notMatched.map((nm, index) =>
+                                                    notMatched.map((nm, index) =>
                                                         <tr key={`${nm.name}_${index}`}>
                                                             <td colSpan={3} className='left'><p><span>{nm.name}</span></p></td>
                                                             <td>{nm.rank}</td>

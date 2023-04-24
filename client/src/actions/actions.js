@@ -197,4 +197,8 @@ export const setTrendDateEnd = (date) => ({
     payload: date
 })
 
+export const uploadRankings = (uploadedRankings) => ({
+    type: 'UPLOAD_RANKINGS',
+    payload: uploadedRankings
+})
 

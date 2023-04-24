@@ -3,6 +3,7 @@ import { matchTeam } from './misc';
 
 
 export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
+    console.log('UPLOADING...')
     if (e.target.files[0]) {
         const filename = e.target.files[0].name
         const reader = new FileReader()
@@ -96,7 +97,7 @@ export const importRankings = (e, stateAllPlayers, setUploadedRankings) => {
                 console.log(uploadedRankings.error)
             }
 
-
+            console.log(uploadedRankings)
 
             setUploadedRankings({
                 rankings: uploadedRankings,

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Heading from "./heading";
-import { filterData } from "../Functions/filterData";
 import Players from '../Players/players';
 import Leagues from '../Leagues/leagues';
 import Leaguemates from '../Leaguemates/leaguemates';

@@ -20,7 +20,7 @@ const leaguesReducer = (state = initialState, action) => {
                 ...state,
                 state: action.payload.state,
                 allPlayers: action.payload.allPlayers,
-                schedule: action.payload.schedule,
+                nflSchedule: action.payload.schedule,
                 leagues: action.payload.leagues,
                 playerShares: action.payload.playerShares,
                 leaguemates: action.payload.leaguemates,

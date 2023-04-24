@@ -7,6 +7,7 @@ import filteredDataReducer from './filteredDataReducer';
 import tabReducer from './tabReducer';
 import dynastyValuesReducer from './valuesReducer';
 import statsReducer from './statsReducer';
+import lineupsReducer from './lineupsReducer';
 
 const rootReducer = combineReducers({
     user: userReducer,
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
     filteredData: filteredDataReducer,
     tab: tabReducer,
     dynastyValues: dynastyValuesReducer,
-    stats: statsReducer
+    stats: statsReducer,
+    lineups: lineupsReducer
 });
 
 export default rootReducer;
