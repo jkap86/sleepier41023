@@ -2,6 +2,7 @@ import TableMain from "../Home/tableMain";
 import { useState, useEffect } from "react";
 import tumbleweedgif from '../../images/tumbleweed.gif';
 import { matchTeam } from "../Functions/misc";
+import { useSelector } from 'react-redux';
 
 const Lineup = ({
     matchup,
@@ -21,6 +22,7 @@ const Lineup = ({
     const [itemActive, setItemActive] = useState(null);
     const [syncing, setSyncing] = useState(false)
     const [secondaryContent, setSecondaryContent] = useState('Optimal')
+    const { rankings, notMatched, filename, error } = useSelector(state => state.lineups)
 
     const active_player = lineup_check?.find(x => `${x.slot}_${x.index}` === itemActive)?.current_player
 
@@ -120,7 +122,7 @@ const Lineup = ({
                     className: color
                 },
                 {
-                    text: uploadedRankings.rankings[slot.current_player]?.prevRank || 999,
+                    text: rankings[slot.current_player]?.prevRank || 999,
                     colSpan: 3,
                     className: color
                 },
@@ -203,7 +205,7 @@ const Lineup = ({
             },
 
             ...lineup_check.find(x => x.slot_index === itemActive)?.slot_options
-                ?.sort((a, b) => (uploadedRankings.rankings[a]?.prevRank || 999) - (uploadedRankings.rankings[b]?.prevRank || 999))
+                ?.sort((a, b) => (rankings[a]?.prevRank || 999) - (rankings[b]?.prevRank || 999))
                 ?.map((so, index) => {
                     const color = optimal_lineup.find(x => x.player === so) ? 'green' :
                         stateAllPlayers[so]?.rank_ecr < stateAllPlayers[active_player]?.rank_ecr ? 'yellow' : ''
@@ -231,7 +233,7 @@ const Lineup = ({
                                 className: color
                             },
                             {
-                                text: uploadedRankings.rankings[so]?.prevRank || 999,
+                                text: rankings[so]?.prevRank || 999,
                                 colSpan: 3,
                                 className: color
                             },
@@ -268,7 +270,7 @@ const Lineup = ({
                             colSpan: 3,
                         },
                         {
-                            text: uploadedRankings.rankings[opp_starter]?.prevRank || 999,
+                            text: rankings[opp_starter]?.prevRank || 999,
                             colSpan: 3
                         },
                         {
@@ -303,7 +305,7 @@ const Lineup = ({
                             className: 'green'
                         },
                         {
-                            text: uploadedRankings.rankings[ol.player]?.prevRank || 999,
+                            text: rankings[ol.player]?.prevRank || 999,
                             colSpan: 3,
                             className: 'green'
                         },

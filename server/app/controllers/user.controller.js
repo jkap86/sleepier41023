@@ -5,17 +5,9 @@ const sequelize = db.sequelize;
 const User = db.users;
 const Op = db.Sequelize.Op
 const League = db.leagues;
-const https = require('https');
-const axios = require('axios').create({
-    headers: {
-        'content-type': 'application/json'
-    },
-    httpsAgent: new https.Agent({ rejectUnauthorized: false, keepAlive: true }),
-    timeout: 1000
-});
-const axiosRetry = require('axios-retry');
 
-axiosRetry(axios, { retries: 3 })
+const axios = require('../api/axiosInstance');
+
 
 exports.create = async (req, res) => {
     console.log(`***SEARCHING FOR ${req.body.username}***`)

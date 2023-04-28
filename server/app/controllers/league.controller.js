@@ -2,17 +2,7 @@
 const db = require("../models");
 const League = db.leagues;
 const User = db.users;
-const https = require('https');
-const axios = require('axios').create({
-    headers: {
-        'content-type': 'application/json'
-    },
-    httpsAgent: new https.Agent({ rejectUnauthorized: false, keepAlive: true }),
-    timeout: 1000
-});
-const axiosRetry = require('axios-retry');
-
-axiosRetry(axios, { retries: 3 })
+const axios = require('../api/axiosInstance');
 
 exports.sync = async (req, res, app) => {
     const state = app.get('state')
