@@ -18,9 +18,6 @@ module.exports = (sequelize, Sequelize) => {
         managers: {
             type: DataTypes.ARRAY(DataTypes.STRING)
         },
-        users: {
-            type: DataTypes.ARRAY(DataTypes.STRING)
-        },
         players: {
             type: DataTypes.ARRAY(DataTypes.STRING)
         },
@@ -42,8 +39,10 @@ module.exports = (sequelize, Sequelize) => {
     }, {
         indexes: [
             {
-                fields: [{ attribute: 'status_updated', operator: 'DESC' }, 'players', 'managers'],
-                using: 'HASH'
+                fields: ['status_updated'],
+                using: 'BTREE',
+                order: [['status_updated', 'DESC']]
+
 
             }
         ]
